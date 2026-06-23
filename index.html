@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<div id="passwordGate" style="position:fixed; inset:0; z-index:9999; background:#000; color:#E1E0CC; font-family:'Almarai',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box;">
+  <div style="width:min(420px,100%); background:#101010; border:1px solid rgba(222,219,200,0.12); border-radius:24px; padding:32px; box-sizing:border-box; box-shadow:0 24px 80px rgba(0,0,0,0.45);">
+    <p style="margin:0 0 10px; color:rgba(222,219,200,0.54); font-size:12px; letter-spacing:0.32em; text-transform:uppercase; font-weight:700;">TINGZHANG</p>
+    <h1 style="margin:0 0 10px; font-size:32px; line-height:1.05; letter-spacing:-0.03em;">Private IELTS Studio</h1>
+    <p style="margin:0 0 22px; color:#9ca3af; font-size:14px; line-height:1.5;">Enter the access password to continue.</p>
+    <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Password" style="width:100%; box-sizing:border-box; background:#000; border:1px solid rgba(222,219,200,0.22); color:#E1E0CC; border-radius:14px; padding:14px 16px; font:inherit; font-size:15px; outline:none;">
+    <button id="passwordButton" type="button" style="width:100%; margin-top:12px; background:#DEDBC8; color:#000; border:0; border-radius:14px; padding:14px 16px; font:inherit; font-weight:800; cursor:pointer;">Unlock</button>
+    <p id="passwordError" style="display:none; margin:12px 0 0; color:#e8c7bf; font-size:13px;">Password incorrect. Please try again.</p>
+  </div>
+</div>
+<x-dc id="appShell">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Inter:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'Inter', sans-serif;
+    --background: 201 100% 13%;
+    --foreground: 0 0% 100%;
+    --muted-foreground: 240 4% 66%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --muted: 0 0% 10%;
+    --accent: 0 0% 10%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+  }
+  html, body { margin:0; padding:0; background:#000; }
+  *::selection { background:#DEDBC8; color:#000; }
+  @keyframes pullUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes scaleIn { from { opacity:0; transform:scale(.95); } to { opacity:1; transform:scale(1); } }
+  @keyframes barPulse { 0%,100% { transform:scaleY(.35); } 50% { transform:scaleY(1); } }
+  @keyframes recPulse { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+  @keyframes fade-rise {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  textarea::placeholder { color:rgba(222,219,200,0.35); }
+  textarea:focus { outline:none; border-color:rgba(222,219,200,0.5) !important; }
+  .velorah-hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+  }
+  .velorah-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: min(34vh, 360px);
+    background: linear-gradient(180deg, #000 0%, rgba(0,0,0,0.78) 34%, rgba(0,0,0,0.28) 68%, rgba(0,0,0,0) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .velorah-hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .velorah-nav-links {
+    display: none;
+    align-items: center;
+    gap: 32px;
+  }
+  .velorah-nav-link {
+    color: hsl(var(--muted-foreground));
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+    transition: color 180ms ease;
+    cursor: pointer;
+  }
+  .velorah-nav-link:hover,
+  .velorah-nav-link.active {
+    color: hsl(var(--foreground));
+  }
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg,
+      rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+      rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+      rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .animate-fade-rise { animation: fade-rise 0.8s ease-out both; }
+  .animate-fade-rise-delay { animation: fade-rise 0.8s ease-out 0.2s both; }
+  .animate-fade-rise-delay-2 { animation: fade-rise 0.8s ease-out 0.4s both; }
+  .velorah-action {
+    color: hsl(var(--foreground));
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: transform 180ms ease;
+  }
+  .velorah-action:hover { transform: scale(1.03); }
+  .velorah-blessing {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(120px, 16vh, 180px) 24px clamp(120px, 16vh, 180px);
+    box-sizing: border-box;
+    text-shadow: 0 18px 56px rgba(0,0,0,0.72);
+  }
+  @media (min-width: 768px) {
+    .velorah-nav-links { display: flex; }
+  }
+</style>
+</helmet>
+
+<div data-screen-label="IELTS Studio" style="background:#000; color:#E1E0CC; font-family:'Almarai',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden;">
+
+  <!-- ================= HERO ================= -->
+  <section id="top" data-screen-label="Hero" style="height:100vh; padding:clamp(12px,2.5vw,24px); box-sizing:border-box;">
+    <div style="position:relative; width:100%; height:100%; border-radius:clamp(16px,2.4vw,32px); overflow:hidden; background:#0a0a0a;">
+	      <video autoplay loop muted playsinline preload="auto" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4"></video>
+      <div style="{{ noiseOverlayStyle }}"></div>
+      <div style="position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.3), transparent, rgba(0,0,0,0.62)); pointer-events:none;"></div>
+
+      <div style="position:absolute; top:clamp(16px,2vw,26px); left:clamp(18px,2.5vw,34px); z-index:20; font-weight:700; letter-spacing:0.42em; font-size:clamp(11px,1vw,13px); color:#E1E0CC;">TINGZHANG</div>
+
+      <nav style="position:absolute; top:0; left:50%; transform:translateX(-50%); z-index:20; background:#000; border-radius:0 0 clamp(16px,2vw,24px) clamp(16px,2vw,24px); padding:clamp(10px,1.2vw,14px) clamp(16px,3vw,38px); display:flex; align-items:center; gap:clamp(12px,2.8vw,44px);">
+        <a onClick="{{ goPlan }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Plan</a>
+        <a onClick="{{ goListening }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Listening</a>
+        <a onClick="{{ goReading }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Reading</a>
+        <a onClick="{{ goWriting }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Writing</a>
+        <a onClick="{{ goSpeaking }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Speaking</a>
+        <a onClick="{{ goVocab }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Vocab</a>
+        <a onClick="{{ goShadow }}" style="cursor:pointer; color:rgba(225,224,204,0.8); font-size:clamp(10px,0.95vw,14px); text-decoration:none; white-space:nowrap;" style-hover="color:#E1E0CC;">Shadow</a>
+      </nav>
+
+      <div style="position:absolute; bottom:0; left:0; right:0; padding:clamp(20px,3vw,46px);">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:clamp(14px,2vw,28px);">
+          <div style="width:clamp(260px,32vw,440px); max-width:100%;">
+            <p style="opacity:0; animation:fadeUp .9s cubic-bezier(.16,1,.3,1) both; animation-delay:.5s; color:rgba(222,219,200,0.72); font-size:clamp(13px,1.05vw,17px); line-height:1.32; margin:0 0 clamp(16px,1.6vw,22px);">A cinematic prep studio for the four IELTS skills — with a question bank and a day-by-day plan that takes you to band 7 in three months, all on a single page.</p>
+            <button onClick="{{ goPlan }}" style="opacity:0; animation:fadeUp .9s cubic-bezier(.16,1,.3,1) both; animation-delay:.7s; display:inline-flex; align-items:center; gap:10px; background:#DEDBC8; color:#000; border:none; border-radius:999px; padding:7px 7px 7px 22px; font-family:inherit; font-weight:700; font-size:clamp(14px,1vw,16px); cursor:pointer;" style-hover="gap:14px;">
+              See the 12-week plan
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:clamp(34px,2.6vw,40px); height:clamp(34px,2.6vw,40px); background:#000; border-radius:999px; color:#E1E0CC; font-size:16px;">→</span>
+            </button>
+          </div>
+        </div>
+        <h1 style="margin:0; font-weight:500; line-height:0.82; letter-spacing:-0.07em; color:#E1E0CC; white-space:nowrap; font-size:clamp(64px,19vw,400px);">
+          <span style="display:inline-block; opacity:0; animation:pullUp .8s cubic-bezier(.16,1,.3,1) both; animation-delay:0s;">I</span><span style="display:inline-block; opacity:0; animation:pullUp .8s cubic-bezier(.16,1,.3,1) both; animation-delay:.08s;">E</span><span style="display:inline-block; opacity:0; animation:pullUp .8s cubic-bezier(.16,1,.3,1) both; animation-delay:.16s;">L</span><span style="display:inline-block; opacity:0; animation:pullUp .8s cubic-bezier(.16,1,.3,1) both; animation-delay:.24s;">T</span><span style="position:relative; display:inline-block; opacity:0; animation:pullUp .8s cubic-bezier(.16,1,.3,1) both; animation-delay:.32s;">S<span style="position:absolute; top:0.18em; right:-0.32em; font-size:0.3em;">*</span></span>
+        </h1>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT / STATEMENT ================= -->
+  <section data-screen-label="About" style="background:#000; padding:clamp(60px,9vw,130px) clamp(20px,4vw,64px);">
+    <div style="background:#101010; border-radius:clamp(18px,2vw,28px); max-width:1100px; margin:0 auto; padding:clamp(40px,6vw,90px) clamp(24px,4vw,60px); text-align:center;">
+      <p style="margin:0 0 clamp(24px,2.4vw,38px); color:#DEDBC8; font-size:clamp(11px,0.85vw,13px); letter-spacing:0.28em; text-transform:uppercase; opacity:0; animation:fadeUp .8s ease both;">Band 7 in 90 days</p>
+      <h2 style="margin:0 auto clamp(26px,3vw,42px); max-width:780px; font-weight:400; line-height:0.95; letter-spacing:-0.02em; font-size:clamp(30px,4.6vw,68px); color:#E1E0CC; opacity:0; animation:fadeUp 1s cubic-bezier(.16,1,.3,1) both; animation-delay:.1s;">
+        A quiet studio for the exam — <span style="font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;">listen, read, write and speak</span> your way to band 7, one day at a time.
+      </h2>
+      <p style="margin:0 auto; max-width:640px; color:#DEDBC8; font-size:clamp(13px,1.05vw,17px); line-height:1.55; opacity:0.85;">A full question bank for every skill and a 12-week schedule that tells you exactly what to do each day. Follow the plan, tick off the work, and watch your projected band climb — every task is finished right here, in one session.</p>
+    </div>
+  </section>
+
+  <!-- ================= STUDY PLAN ================= -->
+  <section id="plan" data-screen-label="Plan" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px); scroll-margin-top:20px;">
+    <div style="max-width:1180px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(20px,2.4vw,32px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">✦</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Your 12-week plan</h2>
+      </div>
+
+      <!-- progress card -->
+      <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(22px,2.6vw,38px); border:1px solid rgba(222,219,200,0.06); display:flex; flex-wrap:wrap; gap:clamp(24px,3vw,48px); align-items:center; margin-bottom:clamp(24px,3vw,40px);">
+        <div style="flex:none;">
+          <p style="margin:0 0 8px; color:#9ca3af; font-size:12px; letter-spacing:0.2em; text-transform:uppercase;">Today</p>
+	          <div style="display:flex; align-items:baseline; gap:8px;">
+	            <span style="font-size:clamp(40px,4.5vw,64px); font-weight:800; letter-spacing:-0.03em; color:#E1E0CC; line-height:1;">{{ plan.dayText }}</span>
+	            <span style="font-size:clamp(16px,1.4vw,22px); color:rgba(222,219,200,0.45); font-weight:700;">{{ plan.dayTotal }}</span>
+	          </div>
+	          <p style="margin:10px 0 0; color:rgba(222,219,200,0.44); font-size:12px;">{{ plan.startDateText }}</p>
+	        </div>
+        <div style="flex:1; min-width:240px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+            <span style="color:#9ca3af; font-size:13px;">Plan complete</span>
+            <span style="color:#E1E0CC; font-weight:700; font-size:15px;">{{ plan.pct }}</span>
+          </div>
+          <div style="height:10px; border-radius:999px; background:rgba(222,219,200,0.12); overflow:hidden;">
+            <div style="height:100%; border-radius:999px; background:#DEDBC8; width:{{ plan.pctWidth }}; transition:width .5s cubic-bezier(.16,1,.3,1);"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:14px;">
+            <span style="color:#9ca3af; font-size:13px;">Projected band</span>
+            <span style="font-family:'Instrument Serif',serif; font-style:italic; color:#E1E0CC; font-size:clamp(24px,2.4vw,34px); line-height:1;">{{ plan.band }}</span>
+          </div>
+        </div>
+        <button onClick="{{ plan.onReset }}" style="flex:none; background:none; border:1px solid rgba(222,219,200,0.2); color:rgba(222,219,200,0.7); border-radius:999px; padding:9px 20px; font-family:inherit; font-size:13px; cursor:pointer; align-self:flex-start;" style-hover="border-color:#DEDBC8; color:#E1E0CC;">Restart plan</button>
+      </div>
+
+      <!-- phase strip -->
+      <div style="display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,14px); margin-bottom:clamp(22px,2.6vw,34px);">
+        <sc-for list="{{ plan.phases }}" as="p" hint-placeholder-count="3">
+          <div style="{{ p.style }}">
+            <p style="margin:0 0 6px; color:rgba(222,219,200,0.5); font-size:11px; letter-spacing:0.16em; text-transform:uppercase;">{{ p.tag }}</p>
+            <p style="margin:0 0 3px; color:#E1E0CC; font-weight:700; font-size:clamp(15px,1.3vw,18px);">{{ p.name }}</p>
+            <p style="margin:0; color:#9ca3af; font-size:13px;">Band {{ p.range }}</p>
+          </div>
+        </sc-for>
+      </div>
+
+	      <!-- week selector -->
+	      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:18px;">
+	        <span style="color:#9ca3af; font-size:13px; margin-right:4px;">Week</span>
+	        <sc-for list="{{ plan.weekPills }}" as="w" hint-placeholder-count="12">
+	          <button onClick="{{ w.onSelect }}" style="{{ w.style }}">{{ w.label }}</button>
+	        </sc-for>
+	        <button onClick="{{ plan.goTodayWeek }}" style="{{ plan.todayButtonStyle }}">Today’s week</button>
+	      </div>
+
+      <div style="margin-bottom:clamp(18px,2vw,26px);">
+        <h3 style="margin:0 0 6px; color:#E1E0CC; font-weight:700; font-size:clamp(18px,1.7vw,26px);">{{ plan.weekTitle }}</h3>
+        <p style="margin:0; color:#9ca3af; font-size:clamp(13px,1vw,15px); max-width:680px; line-height:1.5;">{{ plan.weekRange }} — {{ plan.blurb }}</p>
+      </div>
+
+      <!-- day cards -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:clamp(10px,1.2vw,16px);">
+        <sc-for list="{{ plan.days }}" as="d" hint-placeholder-count="7">
+          <div style="{{ d.cardStyle }}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="{{ d.themeStyle }}">{{ d.theme }}</span>
+              <sc-if value="{{ d.isToday }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:#000; background:#DEDBC8; padding:3px 8px; border-radius:999px; font-weight:700;">Today</span>
+              </sc-if>
+            </div>
+            <p style="margin:0; font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(20px,1.8vw,26px); color:rgba(222,219,200,0.55);">{{ d.dayLabel }}</p>
+            <div style="display:flex; flex-direction:column; gap:9px;">
+              <sc-for list="{{ d.tasks }}" as="t" hint-placeholder-count="3">
+	                <div style="display:flex; align-items:flex-start; gap:9px;">
+	                  <button onClick="{{ t.onToggle }}" style="{{ t.checkStyle }}">{{ t.check }}</button>
+	                  <button onClick="{{ t.onGo }}" style="{{ t.textButtonStyle }}">
+	                    <span style="{{ t.textStyle }}">{{ t.label }}</span>
+	                    <span style="{{ t.detailStyle }}">{{ t.detail }}</span>
+	                  </button>
+	                  <sc-if value="{{ t.hasGo }}" hint-placeholder-val="{{ false }}">
+	                    <button onClick="{{ t.onGo }}" style="flex:none; margin-left:auto; background:none; border:none; color:rgba(222,219,200,0.55); font-size:14px; cursor:pointer; padding:0;" style-hover="color:#E1E0CC;">↗</button>
+	                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LISTENING ================= -->
+  <section id="listening" data-screen-label="Listening" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px); scroll-margin-top:20px;">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(24px,3vw,40px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">01</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Listening</h2>
+      </div>
+
+      <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,3vw,44px); border:1px solid rgba(222,219,200,0.06);">
+        <p style="margin:0 0 6px; color:#9ca3af; font-size:13px;">{{ listening.setLabel }}</p>
+        <p style="margin:0 0 16px; color:#DEDBC8; font-size:clamp(16px,1.4vw,22px); font-weight:700;">{{ listening.title }}</p>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+          <sc-for list="{{ listening.sets }}" as="p" hint-placeholder-count="6">
+            <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:18px; background:#000; border-radius:16px; padding:16px 20px; margin-bottom:14px;">
+          <button onClick="{{ listening.onPlay }}" style="flex:none; width:clamp(46px,4vw,58px); height:clamp(46px,4vw,58px); border-radius:999px; background:#DEDBC8; color:#000; border:none; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">{{ listening.playGlyph }}</button>
+          <div style="flex:1; display:flex; align-items:center; gap:4px; height:34px;">
+            <sc-for list="{{ listening.bars }}" as="b" hint-placeholder-count="28">
+              <span style="flex:1; background:rgba(222,219,200,0.35); border-radius:2px; height:100%; transform-origin:center; transform:scaleY({{ b.h }}); animation:{{ listening.barAnim }}; animation-delay:{{ b.delay }};"></span>
+            </sc-for>
+          </div>
+          <span style="flex:none; color:#9ca3af; font-size:13px; min-width:54px; text-align:right;">{{ listening.statusText }}</span>
+        </div>
+        <button onClick="{{ listening.toggleTranscript }}" style="background:none; border:none; color:rgba(222,219,200,0.6); font-family:inherit; font-size:12px; cursor:pointer; padding:0 0 0 2px;" style-hover="color:#E1E0CC;">{{ listening.transcriptLabel }}</button>
+        <sc-if value="{{ listening.showTranscript }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:12px 0 0; color:#9ca3af; font-size:13px; line-height:1.6; background:#000; border-radius:12px; padding:16px 18px;">{{ listening.transcript }}</p>
+        </sc-if>
+
+        <div style="margin-top:30px; display:flex; flex-direction:column; gap:26px;">
+          <sc-for list="{{ listening.questions }}" as="q" hint-placeholder-count="3">
+            <div>
+              <p style="margin:0 0 12px; color:#E1E0CC; font-size:clamp(14px,1.1vw,16px); font-weight:700;"><span style="color:rgba(222,219,200,0.5); margin-right:8px;">{{ q.num }}</span>{{ q.q }}</p>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <sc-for list="{{ q.options }}" as="opt" hint-placeholder-count="4">
+                  <button onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.text }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:28px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <button onClick="{{ listening.submit }}" style="background:#DEDBC8; color:#000; border:none; border-radius:999px; padding:11px 26px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">Check answers</button>
+          <button onClick="{{ listening.reset }}" style="background:none; color:rgba(222,219,200,0.6); border:1px solid rgba(222,219,200,0.2); border-radius:999px; padding:10px 22px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">Reset</button>
+          <sc-if value="{{ listening.submitted }}" hint-placeholder-val="{{ false }}">
+            <span style="color:#DEDBC8; font-weight:700; font-size:15px;">{{ listening.scoreText }}</span>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= READING ================= -->
+  <section id="reading" data-screen-label="Reading" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px); scroll-margin-top:20px;">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(20px,2.4vw,32px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">02</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Reading</h2>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <sc-for list="{{ reading.sets }}" as="p" hint-placeholder-count="6">
+          <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
+        </sc-for>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:clamp(12px,1.4vw,20px);">
+        <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,2.6vw,40px); border:1px solid rgba(222,219,200,0.06);">
+          <p style="margin:0 0 6px; color:#9ca3af; font-size:13px;">{{ reading.setLabel }}</p>
+          <h3 style="margin:0 0 18px; font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; font-size:clamp(22px,2vw,30px); color:#E1E0CC;">{{ reading.title }}</h3>
+          <p style="margin:0; color:#DEDBC8; font-size:clamp(14px,1.05vw,16px); line-height:1.7; opacity:0.9;">{{ reading.passage }}</p>
+        </div>
+
+        <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,2.6vw,40px); border:1px solid rgba(222,219,200,0.06);">
+          <p style="margin:0 0 6px; color:#9ca3af; font-size:13px;">Questions</p>
+          <p style="margin:0 0 22px; color:#DEDBC8; font-size:clamp(14px,1.1vw,16px); font-weight:700;">Choose <span style="color:#E1E0CC;">True</span>, <span style="color:#E1E0CC;">False</span> or <span style="color:#E1E0CC;">Not Given</span>.</p>
+          <div style="display:flex; flex-direction:column; gap:22px;">
+            <sc-for list="{{ reading.questions }}" as="q" hint-placeholder-count="4">
+              <div>
+                <p style="margin:0 0 10px; color:#E1E0CC; font-size:clamp(13px,1vw,15px); line-height:1.4;"><span style="color:rgba(222,219,200,0.5); margin-right:8px;">{{ q.num }}</span>{{ q.q }}</p>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <sc-for list="{{ q.options }}" as="opt" hint-placeholder-count="3">
+                    <button onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.text }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:26px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            <button onClick="{{ reading.submit }}" style="background:#DEDBC8; color:#000; border:none; border-radius:999px; padding:11px 26px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">Check answers</button>
+            <button onClick="{{ reading.reset }}" style="background:none; color:rgba(222,219,200,0.6); border:1px solid rgba(222,219,200,0.2); border-radius:999px; padding:10px 22px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">Reset</button>
+            <sc-if value="{{ reading.submitted }}" hint-placeholder-val="{{ false }}">
+              <span style="color:#DEDBC8; font-weight:700; font-size:15px;">{{ reading.scoreText }}</span>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WRITING ================= -->
+  <section id="writing" data-screen-label="Writing" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px); scroll-margin-top:20px;">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(20px,2.4vw,32px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">03</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Writing</h2>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <sc-for list="{{ writing.sets }}" as="p" hint-placeholder-count="6">
+          <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
+        </sc-for>
+      </div>
+
+      <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,3vw,44px); border:1px solid rgba(222,219,200,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:22px;">
+          <div style="flex:1; min-width:260px;">
+            <p style="margin:0 0 8px; color:#9ca3af; font-size:13px;">{{ writing.setLabel }}</p>
+            <p style="margin:0; color:#DEDBC8; font-size:clamp(15px,1.25vw,19px); line-height:1.5; font-weight:700;">{{ writing.prompt }}</p>
+          </div>
+          <div style="flex:none; text-align:right;">
+            <div style="font-size:clamp(26px,2.6vw,38px); font-weight:800; letter-spacing:-0.02em; color:{{ writing.timeColor }}; font-variant-numeric:tabular-nums;">{{ writing.timeText }}</div>
+            <button onClick="{{ writing.start }}" style="margin-top:6px; background:none; border:1px solid rgba(222,219,200,0.25); color:#DEDBC8; border-radius:999px; padding:7px 18px; font-family:inherit; font-size:13px; cursor:pointer;" style-hover="border-color:#DEDBC8;">{{ writing.startLabel }}</button>
+          </div>
+        </div>
+
+        <textarea value="{{ writing.value }}" onChange="{{ writing.onChange }}" placeholder="Start writing your essay here…" style="width:100%; box-sizing:border-box; min-height:280px; background:#000; border:1px solid rgba(222,219,200,0.15); border-radius:14px; padding:18px 20px; color:#E1E0CC; font-family:inherit; font-size:15px; line-height:1.7; resize:vertical;"></textarea>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-top:14px;">
+          <span style="font-size:14px; font-weight:700; color:{{ writing.wordColor }};">{{ writing.wordText }}</span>
+          <button onClick="{{ writing.toggleModel }}" style="background:none; border:none; color:rgba(222,219,200,0.7); font-family:inherit; font-size:13px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;" style-hover="color:#E1E0CC;">{{ writing.modelLabel }}</button>
+        </div>
+
+        <sc-if value="{{ writing.showModel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:18px; background:#000; border-radius:14px; padding:20px 22px;">
+            <p style="margin:0 0 12px; color:#DEDBC8; font-size:12px; letter-spacing:0.2em; text-transform:uppercase;">Band 8 model answer</p>
+            <p style="margin:0; color:#DEDBC8; font-size:14px; line-height:1.75; white-space:pre-line; opacity:0.92;">{{ writing.model }}</p>
+          </div>
+        </sc-if>
+
+        <div style="margin-top:24px; border-top:1px solid rgba(222,219,200,0.1); padding-top:20px;">
+          <p style="margin:0 0 14px; color:#9ca3af; font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Checklist for band 7+</p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:10px 24px;">
+            <sc-for list="{{ writing.tips }}" as="t" hint-placeholder-count="5">
+              <div style="display:flex; align-items:flex-start; gap:10px;">
+                <span style="flex:none; color:#5fa777; font-size:15px; margin-top:1px;">✓</span>
+                <span style="color:#9ca3af; font-size:13px; line-height:1.45;">{{ t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPEAKING ================= -->
+  <section id="speaking" data-screen-label="Speaking" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px) clamp(70px,8vw,120px); scroll-margin-top:20px;">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(20px,2.4vw,32px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">04</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Speaking</h2>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <sc-for list="{{ speaking.sets }}" as="p" hint-placeholder-count="8">
+          <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
+        </sc-for>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:clamp(12px,1.4vw,20px);">
+        <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,2.6vw,40px); border:1px solid rgba(222,219,200,0.06);">
+          <p style="margin:0 0 6px; color:#9ca3af; font-size:13px;">{{ speaking.setLabel }}</p>
+          <h3 style="margin:0 0 20px; font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; font-size:clamp(22px,2.2vw,32px); color:#E1E0CC; line-height:1.15;">{{ speaking.title }}</h3>
+          <p style="margin:0 0 12px; color:#9ca3af; font-size:14px;">You should say:</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <sc-for list="{{ speaking.bullets }}" as="b" hint-placeholder-count="4">
+              <div style="display:flex; align-items:flex-start; gap:10px;">
+                <span style="flex:none; width:5px; height:5px; border-radius:999px; background:#DEDBC8; margin-top:9px;"></span>
+                <span style="color:#DEDBC8; font-size:clamp(14px,1.05vw,16px); line-height:1.5; opacity:0.9;">{{ b }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,2.6vw,40px); border:1px solid rgba(222,219,200,0.06); display:flex; flex-direction:column;">
+          <div style="text-align:center; padding:clamp(10px,2vw,24px) 0;">
+            <p style="margin:0 0 6px; color:#9ca3af; font-size:12px; letter-spacing:0.2em; text-transform:uppercase;">{{ speaking.phaseLabel }}</p>
+            <div style="font-size:clamp(48px,7vw,82px); font-weight:800; letter-spacing:-0.03em; color:#E1E0CC; line-height:1; font-variant-numeric:tabular-nums;">{{ speaking.timeText }}</div>
+            <sc-if value="{{ speaking.recording }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:14px 0 0; color:#c2705f; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:8px;"><span style="width:9px; height:9px; border-radius:999px; background:#c2705f; animation:recPulse 1s infinite;"></span>Recording your answer…</p>
+            </sc-if>
+            <sc-if value="{{ speaking.micError }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:14px 0 0; color:#9ca3af; font-size:12px; line-height:1.4;">{{ speaking.micErrorText }}</p>
+            </sc-if>
+          </div>
+
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:auto;">
+            <button onClick="{{ speaking.primary }}" style="background:#DEDBC8; color:#000; border:none; border-radius:999px; padding:12px 30px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">{{ speaking.primaryLabel }}</button>
+            <sc-if value="{{ speaking.showSecondary }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ speaking.secondary }}" style="background:none; color:rgba(222,219,200,0.7); border:1px solid rgba(222,219,200,0.22); border-radius:999px; padding:11px 24px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">{{ speaking.secondaryLabel }}</button>
+            </sc-if>
+          </div>
+
+          <sc-if value="{{ speaking.audioUrl }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:22px; background:#000; border-radius:14px; padding:16px 18px;">
+              <p style="margin:0 0 10px; color:#DEDBC8; font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Play back your answer</p>
+              <audio controls src="{{ speaking.audioUrl }}" style="width:100%;"></audio>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VOCABULARY (单词背诵) ================= -->
+  <section id="vocab" data-screen-label="Vocabulary" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px); scroll-margin-top:20px;">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(8px,1vw,12px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">05</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Vocabulary</h2>
+      </div>
+      <p style="margin:0 0 clamp(20px,2.4vw,30px); color:#9ca3af; font-size:clamp(13px,1vw,15px);">单词背诵 · flip the card, hear the word, mark what you know.</p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <sc-for list="{{ vocab.sets }}" as="p" hint-placeholder-count="6">
+          <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
+        </sc-for>
+      </div>
+
+	      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:clamp(12px,1.4vw,20px); align-items:start;">
+	        <!-- flashcard -->
+	        <div onClick="{{ vocab.flip }}" style="position:relative; min-height:clamp(300px,34vw,380px); background:#101010; border:1px solid rgba(222,219,200,0.1); border-radius:clamp(18px,2vw,26px); padding:clamp(28px,3vw,44px); cursor:pointer; display:flex; flex-direction:column; justify-content:center; text-align:center;">
+          <span style="position:absolute; top:18px; left:22px; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(222,219,200,0.4);">{{ vocab.deckName }}</span>
+          <span style="position:absolute; top:18px; right:22px; font-size:12px; color:rgba(222,219,200,0.4);">{{ vocab.counter }}</span>
+
+          <sc-if value="{{ vocab.front }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <p style="margin:0 0 10px; font-size:clamp(34px,4.6vw,58px); font-weight:800; letter-spacing:-0.02em; color:#E1E0CC; line-height:1;">{{ vocab.word }}</p>
+              <p style="margin:0 0 10px; color:rgba(222,219,200,0.55); font-size:clamp(15px,1.3vw,18px); font-family:'Instrument Serif',serif; font-style:italic;">{{ vocab.ipa }}</p>
+              <p style="margin:0 0 22px; color:#DEDBC8; font-size:clamp(17px,1.7vw,23px); font-weight:700;">{{ vocab.cn }}</p>
+	              <button onClick="{{ vocab.speak }}" style="display:inline-flex; align-items:center; gap:8px; background:rgba(222,219,200,0.1); border:1px solid rgba(222,219,200,0.2); color:#E1E0CC; border-radius:999px; padding:8px 18px; font-family:inherit; font-size:13px; cursor:pointer;" style-hover="background:rgba(222,219,200,0.18);">{{ vocab.voiceButton }}</button>
+              <p style="margin:18px 0 0; color:rgba(222,219,200,0.35); font-size:12px;">Tap card to reveal English meaning and example</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ vocab.back }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <p style="margin:0 0 6px; font-size:clamp(24px,2.6vw,34px); font-weight:700; color:#E1E0CC; line-height:1.1;">{{ vocab.word }}</p>
+              <p style="margin:0 0 12px; color:#DEDBC8; font-size:clamp(17px,1.7vw,23px); font-weight:700;">中文：{{ vocab.cn }}</p>
+              <p style="margin:0 0 8px; color:rgba(222,219,200,0.45); font-size:11px; letter-spacing:0.16em; text-transform:uppercase;">English meaning</p>
+              <p style="margin:0 0 16px; color:#9ca3af; font-size:clamp(13px,1.1vw,15px); line-height:1.5;">{{ vocab.en }}</p>
+	              <p style="margin:0 0 8px; color:rgba(222,219,200,0.45); font-size:11px; letter-spacing:0.16em; text-transform:uppercase;">Example</p>
+	              <p style="margin:0 0 16px; color:rgba(222,219,200,0.75); font-size:clamp(14px,1.2vw,16px); font-style:italic; line-height:1.5; font-family:'Instrument Serif',serif;">“{{ vocab.ex }}”</p>
+	              <p style="margin:0 0 8px; color:rgba(222,219,200,0.45); font-size:11px; letter-spacing:0.16em; text-transform:uppercase;">Usage scene</p>
+	              <p style="margin:0; color:#9ca3af; font-size:clamp(13px,1.1vw,15px); line-height:1.5;">{{ vocab.usage }}</p>
+	            </div>
+          </sc-if>
+        </div>
+
+	        <!-- controls + progress -->
+	        <div style="display:flex; flex-direction:column; gap:clamp(12px,1.4vw,18px);">
+	          <div style="background:#101010; border:1px solid rgba(222,219,200,0.06); border-radius:clamp(16px,1.8vw,22px); padding:clamp(18px,2vw,26px);">
+	            <div style="display:flex; justify-content:space-between; align-items:baseline; gap:14px; margin-bottom:12px;">
+	              <span style="color:#9ca3af; font-size:13px;">Accent</span>
+	              <span style="color:rgba(222,219,200,0.48); font-size:12px;">{{ vocab.voiceHint }}</span>
+	            </div>
+	            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+	              <sc-for list="{{ vocab.voiceModes }}" as="v" hint-placeholder-count="3">
+	                <button onClick="{{ v.onSelect }}" style="{{ v.style }}">{{ v.label }}</button>
+	              </sc-for>
+	            </div>
+	            <p style="margin:12px 0 0; color:rgba(222,219,200,0.48); font-size:12px; line-height:1.45;">{{ vocab.voiceNote }}</p>
+	          </div>
+	          <div style="background:#101010; border:1px solid rgba(222,219,200,0.06); border-radius:clamp(16px,1.8vw,22px); padding:clamp(22px,2.4vw,32px);">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+              <span style="color:#9ca3af; font-size:13px;">Mastered in this deck</span>
+              <span style="color:#E1E0CC; font-weight:700; font-size:15px;">{{ vocab.masteredText }}</span>
+            </div>
+            <div style="height:10px; border-radius:999px; background:rgba(222,219,200,0.12); overflow:hidden;">
+              <div style="height:100%; border-radius:999px; background:#DEDBC8; width:{{ vocab.masteredWidth }}; transition:width .4s cubic-bezier(.16,1,.3,1);"></div>
+            </div>
+	            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:16px;">
+	              <span style="color:#9ca3af; font-size:13px;">All decks</span>
+	              <span style="font-family:'Instrument Serif',serif; font-style:italic; color:#E1E0CC; font-size:clamp(22px,2.2vw,30px); line-height:1;">{{ vocab.totalText }}</span>
+	            </div>
+	            <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+	              <button onClick="{{ vocab.reviewDeck }}" style="flex:1; min-width:140px; background:rgba(222,219,200,0.1); border:1px solid rgba(222,219,200,0.28); color:#E1E0CC; border-radius:14px; padding:12px; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer;" style-hover="background:rgba(222,219,200,0.16);">Review this deck</button>
+	              <button onClick="{{ vocab.reviewAll }}" style="flex:1; min-width:140px; background:#DEDBC8; border:1px solid #DEDBC8; color:#000; border-radius:14px; padding:12px; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer;">Review all decks</button>
+	            </div>
+	          </div>
+
+          <div style="display:flex; gap:10px;">
+            <button onClick="{{ vocab.again }}" style="flex:1; background:rgba(194,112,95,0.12); border:1px solid rgba(194,112,95,0.5); color:#e8c7bf; border-radius:14px; padding:14px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">Still learning</button>
+            <button onClick="{{ vocab.got }}" style="flex:1; background:rgba(95,167,119,0.14); border:1px solid #5fa777; color:#cfe7d6; border-radius:14px; padding:14px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">Got it ✓</button>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button onClick="{{ vocab.prev }}" style="flex:1; background:none; border:1px solid rgba(222,219,200,0.2); color:rgba(222,219,200,0.7); border-radius:14px; padding:12px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">← Prev</button>
+            <button onClick="{{ vocab.next }}" style="flex:1; background:none; border:1px solid rgba(222,219,200,0.2); color:rgba(222,219,200,0.7); border-radius:14px; padding:12px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SHADOW READING (影子跟读) ================= -->
+  <section id="shadow" data-screen-label="Shadow reading" style="background:#000; padding:clamp(50px,7vw,100px) clamp(20px,4vw,64px); scroll-margin-top:20px;">
+    <div style="max-width:1000px; margin:0 auto;">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:clamp(8px,1vw,12px);">
+        <span style="font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(28px,3vw,46px); color:rgba(222,219,200,0.4);">06</span>
+        <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Shadow reading</h2>
+      </div>
+      <p style="margin:0 0 clamp(20px,2.4vw,30px); color:#9ca3af; font-size:clamp(13px,1vw,15px);">影子跟读 · play a line, then record yourself echoing it a beat behind.</p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <sc-for list="{{ shadow.sets }}" as="p" hint-placeholder-count="4">
+          <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
+        </sc-for>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:clamp(12px,1.4vw,20px); align-items:start;">
+        <!-- player -->
+        <div style="background:#101010; border:1px solid rgba(222,219,200,0.06); border-radius:clamp(18px,2vw,26px); padding:clamp(24px,2.6vw,40px); display:flex; flex-direction:column;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px;">
+            <span style="color:#9ca3af; font-size:13px;">{{ shadow.setLabel }}</span>
+            <span style="color:rgba(222,219,200,0.4); font-size:12px;">{{ shadow.counter }}</span>
+          </div>
+	          <p style="margin:0 0 clamp(22px,3vw,34px); color:#E1E0CC; font-size:clamp(20px,2.2vw,30px); line-height:1.4; min-height:clamp(90px,11vw,140px);">{{ shadow.sentence }}</p>
+		          <p style="margin:-18px 0 clamp(20px,2.4vw,28px); color:rgba(222,219,200,0.62); font-size:clamp(14px,1.2vw,16px); line-height:1.55;">{{ shadow.translation }}</p>
+
+	          <div style="background:#000; border:1px solid rgba(222,219,200,0.08); border-radius:14px; padding:14px 16px; margin-bottom:14px;">
+	            <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:10px;">
+	              <span style="color:#9ca3af; font-size:13px;">Accent</span>
+	              <span style="color:rgba(222,219,200,0.48); font-size:12px;">{{ shadow.voiceHint }}</span>
+	            </div>
+	            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+	              <sc-for list="{{ shadow.voiceModes }}" as="v" hint-placeholder-count="3">
+	                <button onClick="{{ v.onSelect }}" style="{{ v.style }}">{{ v.label }}</button>
+	              </sc-for>
+	            </div>
+	            <p style="margin:10px 0 0; color:rgba(222,219,200,0.48); font-size:12px; line-height:1.45;">{{ shadow.voiceNote }}</p>
+	          </div>
+
+	          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+            <button onClick="{{ shadow.play }}" style="flex:1; min-width:130px; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:#DEDBC8; color:#000; border:none; border-radius:14px; padding:14px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">{{ shadow.playLabel }}</button>
+            <button onClick="{{ shadow.record }}" style="flex:1; min-width:130px; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:{{ shadow.recBg }}; border:1px solid {{ shadow.recBorder }}; color:{{ shadow.recColor }}; border-radius:14px; padding:14px; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer;">{{ shadow.recLabel }}</button>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button onClick="{{ shadow.prev }}" style="flex:1; background:none; border:1px solid rgba(222,219,200,0.2); color:rgba(222,219,200,0.7); border-radius:14px; padding:11px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">← Prev line</button>
+            <button onClick="{{ shadow.next }}" style="flex:1; background:none; border:1px solid rgba(222,219,200,0.2); color:rgba(222,219,200,0.7); border-radius:14px; padding:11px; font-family:inherit; font-size:14px; cursor:pointer;" style-hover="color:#E1E0CC;">Next line →</button>
+          </div>
+
+          <sc-if value="{{ shadow.audioUrl }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:18px; background:#000; border-radius:14px; padding:14px 16px;">
+              <p style="margin:0 0 8px; color:#DEDBC8; font-size:12px; letter-spacing:0.16em; text-transform:uppercase;">Compare your echo</p>
+              <audio controls src="{{ shadow.audioUrl }}" style="width:100%;"></audio>
+            </div>
+          </sc-if>
+          <sc-if value="{{ shadow.micError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:14px 0 0; color:#9ca3af; font-size:12px; line-height:1.4;">{{ shadow.micErrorText }}</p>
+          </sc-if>
+        </div>
+
+        <!-- transcript lines -->
+        <div style="background:#101010; border:1px solid rgba(222,219,200,0.06); border-radius:clamp(18px,2vw,26px); padding:clamp(24px,2.6vw,40px);">
+          <p style="margin:0 0 6px; color:#9ca3af; font-size:13px;">Script</p>
+          <h3 style="margin:0 0 18px; font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; font-size:clamp(20px,1.9vw,28px); color:#E1E0CC;">{{ shadow.title }}</h3>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+	            <sc-for list="{{ shadow.lines }}" as="ln" hint-placeholder-count="12">
+	              <button onClick="{{ ln.onSelect }}" style="{{ ln.style }}">
+	                <span style="display:block;">{{ ln.text }}</span>
+	                <span style="display:block; margin-top:4px; color:{{ ln.zhColor }}; font-size:12px; line-height:1.45;">{{ ln.zh }}</span>
+	              </button>
+	            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CLOSING BLESSING ================= -->
+  <section data-screen-label="Closing Blessing" class="velorah-hero">
+    <video autoplay loop muted playsinline preload="auto" class="velorah-hero-video" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4"></video>
+
+    <div class="velorah-blessing">
+      <p class="animate-fade-rise" style="margin:0 0 22px; color:rgba(255,255,255,0.72); font-size:12px; line-height:1.4; letter-spacing:0.32em; text-transform:uppercase; font-weight:500;">
+        For every quiet effort
+      </p>
+
+      <h2 class="animate-fade-rise-delay" style="font-family:'Instrument Serif',serif; font-size:clamp(48px,8vw,118px); line-height:0.96; letter-spacing:-1.2px; max-width:980px; font-weight:400; margin:0; color:hsl(var(--foreground));">
+        愿你穿过沉默，<br>也抵达光。
+      </h2>
+
+      <p class="animate-fade-rise-delay-2" style="color:rgba(255,255,255,0.78); font-size:clamp(15px,1.3vw,18px); line-height:1.8; max-width:680px; margin:32px 0 0;">
+        愿每一次练习都让你更清醒、更勇敢，愿所有慢慢积累的答案，最后都成为你走向远方的底气。
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer style="background:#000; border-top:1px solid rgba(222,219,200,0.08); padding:clamp(40px,5vw,72px) clamp(20px,4vw,64px); display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+    <div style="font-weight:700; letter-spacing:0.42em; font-size:13px; color:#E1E0CC;">TINGZHANG</div>
+    <p style="margin:0; color:#6b7280; font-size:13px;">A studio for the four IELTS skills · listening · reading · writing · speaking</p>
+    <button onClick="{{ goTop }}" style="background:none; border:1px solid rgba(222,219,200,0.2); color:#DEDBC8; border-radius:999px; padding:9px 22px; font-family:inherit; font-size:13px; cursor:pointer;" style-hover="border-color:#DEDBC8;">Back to top ↑</button>
+  </footer>
+
+</div>
+</x-dc>
+<script>
+(function () {
+  var expectedHash = '3c510305f3ee2488dc22d91cad1447fbf9434f8b614b6cd5e72e579bc52b53de';
+  var gate = document.getElementById('passwordGate');
+  var app = document.getElementById('appShell');
+  var input = document.getElementById('passwordInput');
+  var button = document.getElementById('passwordButton');
+	  var error = document.getElementById('passwordError');
+	  function playHeroVideos() {
+	    Array.prototype.forEach.call(document.querySelectorAll('video'), function (video) {
+	      try {
+	        video.muted = true;
+	        video.loop = true;
+	        video.playsInline = true;
+	        var promise = video.play();
+	        if (promise && promise.catch) promise.catch(function () {});
+	      } catch (e) {}
+	    });
+	  }
+	  function showApp() {
+	    if (gate) gate.style.display = 'none';
+	    if (app) app.style.display = '';
+	    playHeroVideos();
+	    setTimeout(playHeroVideos, 250);
+	  }
+  function toHex(buffer) {
+    return Array.prototype.map.call(new Uint8Array(buffer), function (b) {
+      return b.toString(16).padStart(2, '0');
+    }).join('');
+  }
+  async function unlock() {
+    var value = input ? input.value : '';
+    if (!value) return;
+    var data = new TextEncoder().encode(value);
+    var hash = toHex(await crypto.subtle.digest('SHA-256', data));
+    if (hash === expectedHash) {
+      try { sessionStorage.setItem('tingzhangIeltsUnlocked', '1'); } catch (e) {}
+      showApp();
+    } else {
+      if (error) error.style.display = 'block';
+      if (input) input.select();
+    }
+  }
+  try {
+    if (sessionStorage.getItem('tingzhangIeltsUnlocked') === '1') showApp();
+  } catch (e) {}
+  if (button) button.addEventListener('click', unlock);
+  if (input) {
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') unlock();
+    });
+    setTimeout(function () { input.focus(); }, 120);
+  }
+})();
+</script>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+
+  // ============ QUESTION BANKS ============
+  listeningBank = [
+    { title:'Urban green spaces', transcript:"Hello everyone, and welcome to today's session on urban green spaces. Over the past decade, cities across Europe have invested heavily in parks, rooftop gardens and tree-lined streets. Research suggests that even ten minutes spent in a green environment can lower stress levels and improve concentration. In our recent study, we followed three hundred office workers for six months. Those who took short daily walks in a nearby park reported sleeping better and feeling more creative at work. Interestingly, the colour green itself appears to play a role, signalling safety and abundance to the human brain. So next time you feel overwhelmed, remember, the nearest park may be the most powerful tool you have.", questions:[
+      { q:"How long did the study of office workers last?", options:["Three months","Six months","One year","Ten years"], answer:1 },
+      { q:"What did the walkers in the study report?", options:["Earning more money","Sleeping better and feeling more creative","Losing weight quickly","Needing less coffee"], answer:1 },
+      { q:"According to the speaker, the colour green signals…", options:["Danger and caution","Wealth and status","Safety and abundance","Energy and speed"], answer:2 },
+    ]},
+    { title:'The penny universities', transcript:"Good afternoon. Today we explore the surprising history of the coffee house. The first coffee houses appeared in the Middle East in the fifteenth century, long before coffee reached Europe. When they finally opened in London in the sixteen-fifties, they were nicknamed penny universities, because for the price of a single cup a customer could sit for hours and join discussions on science, politics and trade. Unlike taverns, coffee houses served no alcohol, so conversation stayed sharp. Merchants, writers and scientists each had their favourite house, and some of these meeting places eventually grew into famous institutions, including the insurance market Lloyd's. By the eighteenth century, London had more than five hundred coffee houses, and they had become the beating heart of the city's intellectual life.", questions:[
+      { q:"Where did the first coffee houses appear?", options:["Europe in the 1650s","The Middle East in the fifteenth century","London in the eighteenth century","India in the sixteenth century"], answer:1 },
+      { q:"Why were London coffee houses called 'penny universities'?", options:["They were funded by universities","A cup cost a pound","For one cup you could join hours of discussion","They taught Latin"], answer:2 },
+      { q:"Which institution grew out of a coffee house?", options:["The British Museum","Lloyd's insurance market","The Bank of England","Oxford University"], answer:1 },
+    ]},
+    { title:'Volunteering at the museum', transcript:"Hi, thanks for your interest in volunteering at the Riverside Museum. Let me run through the basics. Volunteers are asked to commit to one four-hour shift each week, usually on the same day. Most people choose the weekend, but we do need extra help on Wednesdays. You'll start in the welcome team, greeting visitors and handing out maps, and after about three months you can move into the galleries as a guide. Training takes place on the first Saturday of every month and lasts a full day, so please arrive by nine o'clock. Don't forget to bring a packed lunch, as the cafe is closed to staff during training. Uniforms — just a branded T-shirt — are provided, but you'll need comfortable dark trousers and flat shoes of your own.", questions:[
+      { q:"How long is a single volunteer shift?", options:["Two hours","Four hours","A full day","One hour"], answer:1 },
+      { q:"When does training take place?", options:["Every Wednesday","The first Saturday of each month","Weekends only","Three months after starting"], answer:1 },
+      { q:"What must volunteers provide themselves?", options:["A branded T-shirt","A visitor map","Dark trousers and flat shoes","Lunch from the cafe"], answer:2 },
+    ]},
+    { title:'Sleep and memory', transcript:"In tonight's lecture we turn to sleep and its role in memory. While we sleep, the brain does not simply switch off; instead it replays and reorganises the experiences of the day. During deep sleep, fragile new memories are gradually transferred from the hippocampus, a temporary store, into the cortex, where they become more permanent. This is why students who sleep after studying remember far more than those who stay awake. Dreaming sleep, on the other hand, seems to help us link ideas creatively and process emotion. Researchers have found that even a short afternoon nap of ninety minutes can boost the brain's ability to learn new facts. The clear message is that cutting sleep to make time for study is almost always a poor trade.", questions:[
+      { q:"During deep sleep, memories move from the hippocampus to the…", options:["cortex","eyes","short-term store","muscles"], answer:0 },
+      { q:"What does dreaming sleep help us do?", options:["Burn calories","Link ideas and process emotion","Wake up faster","Memorise numbers only"], answer:1 },
+      { q:"A ninety-minute nap can…", options:["replace a full night's sleep","cause forgetfulness","boost the ability to learn new facts","reduce dreaming"], answer:2 },
+    ]},
+    { title:'Powering the city', transcript:"Welcome to the city energy briefing. Five years ago, our city relied on coal for almost seventy per cent of its electricity. Today that figure has fallen to just twenty per cent, and most of the difference has been made up by wind and solar power. The largest single project is the offshore wind farm to the north, which alone powers around ninety thousand homes. Solar panels, meanwhile, have appeared on the rooftops of schools, libraries and even bus shelters. The council's target is to be completely carbon-neutral within ten years. The biggest remaining challenge is not generating clean power but storing it, since the wind does not always blow and the sun does not always shine. For that reason, a new battery facility will open next spring.", questions:[
+      { q:"Five years ago, coal supplied about…", options:["20% of electricity","50% of electricity","70% of electricity","90% of electricity"], answer:2 },
+      { q:"How many homes does the offshore wind farm power?", options:["About 9,000","About 90,000","About 900","Half the city"], answer:1 },
+      { q:"What is the biggest remaining challenge?", options:["Generating power","Storing clean power","Building roads","Training staff"], answer:1 },
+    ]},
+    { title:'The humble bee', transcript:"Today's topic is the humble bee, one of the most important creatures on the planet. Around one in every three mouthfuls of the food we eat depends on pollination, and bees do most of that work. A single honeybee may visit several thousand flowers in a day, carrying pollen from one plant to another. Yet in many regions bee numbers are falling sharply, partly because of disease, partly because of the loss of wildflower meadows, and partly due to certain pesticides. The good news is that ordinary people can help. Planting flowers that bloom at different times of year, leaving a corner of the garden wild, and avoiding chemical sprays all make a real difference. Even a small window box can become a vital fuelling station for a passing bee.", questions:[
+      { q:"How much of our food depends on pollination?", options:["One in ten mouthfuls","One in three mouthfuls","All of it","None of it"], answer:1 },
+      { q:"Bee numbers are falling partly because of…", options:["too many flowers","disease, habitat loss and pesticides","cold weather only","too much rain"], answer:1 },
+      { q:"One way ordinary people can help is to…", options:["use more pesticide","plant flowers that bloom across the year","keep gardens bare and tidy","import more honey"], answer:1 },
+    ]},
+    { title:'Mapping the deep ocean', transcript:"Welcome to the ocean science briefing. It may surprise you to learn that we have mapped the surface of Mars in far greater detail than the floor of our own oceans. More than eighty per cent of the seabed has never been observed directly. The water is simply too deep, too dark and too cold for human divers, and sunlight fades to nothing within the first few hundred metres. To explore these depths, scientists now rely on robotic submarines that can withstand crushing pressure. On a single recent expedition, researchers discovered more than twenty species that had never been seen before, including a translucent fish living six kilometres down. Mapping the deep ocean matters for many reasons: it helps us predict earthquakes, lay undersea cables safely, and understand how the ocean stores carbon. The team hopes to complete a full map of the seabed within the next decade.", questions:[
+      { q:"How much of the seabed has never been observed directly?", options:["About 20 per cent","More than 80 per cent","Exactly half","All of it"], answer:1 },
+      { q:"What do scientists now use to explore the deep ocean?", options:["Human divers","Robotic submarines","Sailing ships","Satellites"], answer:1 },
+      { q:"One reason given for mapping the seabed is to…", options:["find buried treasure","help predict earthquakes","grow more fish","reduce sea levels"], answer:1 },
+    ]},
+    { title:'The story of chocolate', transcript:"Good afternoon. Today we trace the surprising journey of chocolate. The cacao tree was first cultivated more than three thousand years ago in Central America, where its beans were so valuable that they were used as money. For most of its history, chocolate was not eaten but drunk, as a bitter, spiced drink quite unlike the sweet bars we know today. When the drink reached Europe in the sixteenth century, sugar was added, and it quickly became a fashionable luxury for the wealthy. The real transformation came in the nineteenth century, when new machines made it possible to produce smooth, solid chocolate cheaply and in large quantities. Suddenly chocolate was no longer a treat for the rich alone. Today the average person in some countries eats several kilograms a year, yet many of the farmers who grow the beans earn very little. Fairer trade is now one of the industry's biggest challenges.", questions:[
+      { q:"For most of its history, chocolate was…", options:["eaten as solid bars","drunk as a bitter drink","used only in medicine","unknown in Central America"], answer:1 },
+      { q:"What was added to chocolate when it reached Europe?", options:["Salt","Sugar","Milk only","Nothing"], answer:1 },
+      { q:"According to the speaker, a major challenge today is…", options:["growing enough sugar","making chocolate solid","fairer trade for farmers","keeping chocolate cold"], answer:2 },
+    ]},
+  ];
+
+  readingBank = [
+    { title:'A short history of tea', passage:"Tea is the most widely consumed beverage in the world after water. According to Chinese legend, it was discovered by the emperor Shen Nong in 2737 BCE, when a few leaves drifted by accident into his pot of boiling water. For centuries, tea remained a luxury enjoyed mainly by the wealthy. It was not until the seventeenth century that tea reached Europe, carried along trade routes by Dutch and Portuguese merchants. In Britain, tea quickly became a national obsession, and by the eighteenth century it was drunk by people of every social class. The British demand was so great that vast plantations were established in India, transforming entire landscapes. Today, tea is grown in more than fifty countries, and each region produces leaves with a distinct flavour shaped by soil, altitude and climate.", questions:[
+      { q:"Tea is the most consumed drink in the world overall.", answer:"False" },
+      { q:"Tea reached Europe in the seventeenth century.", answer:"True" },
+      { q:"Shen Nong deliberately created the first cup of tea.", answer:"False" },
+      { q:"Tea grown at higher altitudes tastes better than tea grown lower down.", answer:"Not Given" },
+    ]},
+    { title:'The science of yawning', passage:"Yawning is one of the most common yet least understood human behaviours. On average, a person yawns around eight times a day, and almost everyone does it, from unborn babies to the very old. For a long time scientists believed that yawning was simply a way of taking in extra oxygen when we were tired or bored. However, careful experiments have shown that breathing pure oxygen does not reduce yawning at all, which suggests the old theory is wrong. A more recent idea is that yawning helps to cool the brain. When we yawn, the deep breath and the stretching of the jaw increase blood flow and draw cooler air into the body, lowering the temperature of the brain by a fraction of a degree. Perhaps the strangest feature of yawning is that it is contagious: simply reading about it can be enough to trigger one. Researchers think this is linked to empathy, because people who score highly on tests of social connection are the most likely to catch a yawn.", questions:[
+      { q:"Most people yawn several times a day.", answer:"True" },
+      { q:"Breathing pure oxygen stops people from yawning.", answer:"False" },
+      { q:"Yawning may slightly lower the temperature of the brain.", answer:"True" },
+      { q:"Contagious yawning is more common in children than in adults.", answer:"Not Given" },
+    ]},
+    { title:'The rise of the bicycle', passage:"The bicycle is often described as one of the simplest and most efficient machines ever invented. The earliest version, built in Germany in 1817, had no pedals at all; riders pushed it along the ground with their feet. Pedals were not added until the 1860s, and these early models, with their iron frames and wooden wheels, were so uncomfortable that they earned the nickname boneshakers. The real breakthrough came in the 1880s with the so-called safety bicycle, which had two wheels of equal size, a chain drive and, soon afterwards, air-filled rubber tyres. Suddenly cycling was comfortable and safe enough for almost anyone. For the first time ordinary people could travel several miles quickly and cheaply without a horse. The bicycle is also widely credited with helping the cause of women's freedom, as it offered independent travel and encouraged more practical clothing.", questions:[
+      { q:"The first bicycle had pedals.", answer:"False" },
+      { q:"Early pedal bicycles were known as boneshakers because they were uncomfortable.", answer:"True" },
+      { q:"The safety bicycle had two wheels of the same size.", answer:"True" },
+      { q:"The safety bicycle was more expensive than a horse.", answer:"Not Given" },
+    ]},
+    { title:'Life on the reef', passage:"Coral reefs are among the most diverse ecosystems on Earth, often compared to rainforests for the sheer variety of life they support. Although reefs cover less than one per cent of the ocean floor, they are home to roughly a quarter of all marine species. A coral reef is built by tiny animals called polyps, which produce hard skeletons of limestone. Over thousands of years the skeletons of countless generations pile up to form the vast structures we see today. Living inside the coral are microscopic algae, and the two depend on each other: the algae provide food through photosynthesis, while the coral offers shelter. This partnership is delicate. When the sea grows too warm, the coral expels its algae and turns white, an event known as bleaching. If warm conditions continue, the coral may die. Scientists warn that rising ocean temperatures are now the single greatest threat to reefs worldwide.", questions:[
+      { q:"Coral reefs cover less than one per cent of the ocean floor.", answer:"True" },
+      { q:"Coral polyps build their skeletons out of limestone.", answer:"True" },
+      { q:"Coral and algae harm one another.", answer:"False" },
+      { q:"Bleaching always kills coral immediately.", answer:"Not Given" },
+    ]},
+    { title:'The invention of paper', passage:"Few inventions have shaped human history as profoundly as paper. Before it existed, people wrote on materials such as clay, animal skins and papyrus, all of which were heavy, costly or difficult to produce in quantity. Paper as we know it was invented in China around two thousand years ago, traditionally credited to a court official named Cai Lun, who pressed together a pulp of bark, rags and old fishing nets. The technique spread slowly westward along trade routes, reaching the Middle East several centuries later and Europe only by the twelfth century. Because paper was far cheaper than parchment, it allowed books and records to be produced in much greater numbers. When the printing press arrived in Europe in the fifteenth century, abundant paper was essential to its success. Without a steady, affordable supply, the explosion of printed books that followed would have been impossible.", questions:[
+      { q:"Before paper, writing materials were often heavy or expensive.", answer:"True" },
+      { q:"Paper was invented in Europe in the twelfth century.", answer:"False" },
+      { q:"Paper was cheaper than parchment.", answer:"True" },
+      { q:"Cai Lun also invented the printing press.", answer:"Not Given" },
+    ]},
+    { title:'Birdsong and language', passage:"For centuries people have wondered whether the songs of birds have anything in common with human language. Recent research suggests the similarities are deeper than once thought. Like human infants, young songbirds learn their songs by listening to adults and then practising, often making babbling sounds before they can produce a full melody. If a chick is raised in silence, it never develops a normal song, just as a child raised without speech struggles to talk. Birdsong even has a kind of grammar: notes must be arranged in a particular order to carry meaning, and a song with its parts shuffled is ignored by other birds. However, there are important differences. Birdsong is used mainly to defend territory and attract mates rather than to share complex ideas, and most species have only a limited number of songs. Scientists are therefore careful not to overstate the comparison.", questions:[
+      { q:"Young songbirds learn their songs from adult birds.", answer:"True" },
+      { q:"A chick raised in silence still develops a normal song.", answer:"False" },
+      { q:"The order of notes in birdsong affects its meaning.", answer:"True" },
+      { q:"Birds use song mainly to share complex ideas.", answer:"False" },
+    ]},
+    { title:'The lighthouse keepers', passage:"For hundreds of years, lighthouses were among the loneliest workplaces on Earth. A keeper might live for weeks on a tiny rock far out at sea, with only the turning lamp and the crash of waves for company. The work was demanding and precise. Every night the great light had to be lit, its lenses kept spotless, and its clockwork mechanism wound by hand so that the beam would turn at a steady, recognisable rhythm. Sailors depended on these patterns to tell one lighthouse from another and to keep their ships off the rocks. A single missed night could cost lives. Keepers also recorded the weather and, in emergencies, helped to rescue shipwrecked crews. By the late twentieth century, however, almost all lighthouses had been automated. Machines now do the work that generations of keepers once performed, and the last of them have long since gone ashore.", questions:[
+      { q:"Lighthouse keepers often worked in isolated places.", answer:"True" },
+      { q:"The turning rhythm of a light helped sailors identify it.", answer:"True" },
+      { q:"Keepers were paid more than ordinary sailors.", answer:"Not Given" },
+      { q:"Most lighthouses are still operated by hand today.", answer:"False" },
+    ]},
+    { title:'The science of laughter', passage:"Laughter is something every human culture shares, yet scientists are only beginning to understand it. We tend to think we laugh mainly at jokes, but research suggests this is rarely the case. In fact, most laughter happens during ordinary conversation, often after quite unremarkable comments. Its real purpose appears to be social: laughing together signals trust and strengthens the bonds between people. Tellingly, we are far more likely to laugh when we are with others than when we are alone. Laughter also seems to be contagious, which is why so-called laughter tracks were once added to television comedies. There may be physical benefits too, as a good laugh briefly relaxes the muscles and may lower stress hormones. Some hospitals have even introduced humour programmes to help patients cope. Whatever its origins, laughter remains one of the most powerful and pleasant forms of human communication.", questions:[
+      { q:"Most laughter occurs in response to jokes.", answer:"False" },
+      { q:"People laugh more often in company than when alone.", answer:"True" },
+      { q:"Laughter can be contagious.", answer:"True" },
+      { q:"Laughter programmes in hospitals have cured serious illnesses.", answer:"Not Given" },
+    ]},
+  ];
+
+  writingBank = [
+    { prompt:"Some people believe technology has made our lives more complex, while others think it has simplified them. Discuss both views and give your own opinion.", model:"Technology has transformed almost every aspect of modern life, and opinions differ on whether it has simplified our daily routines or made them more complicated. In my view, while technology can add distractions, its overall effect has been to make life considerably easier.\n\nThose who argue that technology complicates life point to constant notifications, the pressure to stay connected, and the steep learning curve of new devices. A person juggling several apps may feel busier rather than freer.\n\nOn the other hand, technology removes countless everyday burdens. Online banking, digital maps and instant translation save hours that previous generations spent on manual tasks, placing vast knowledge and convenience within reach of an ordinary phone.\n\nIn conclusion, although technology brings new challenges, the time and effort it saves far outweigh them, making modern life simpler overall." },
+    { prompt:"Some people think university education should be free for all students, while others believe students should pay their own tuition fees. Discuss both views and give your own opinion.", model:"Whether university education should be funded by the state or paid for by students is a contentious issue. In my view, while free tuition is an admirable goal, a shared system in which students contribute is fairer and more sustainable.\n\nThose who support free education argue that it widens access. When cost is removed, talented young people from poorer families are no longer shut out, and society benefits from a better-educated workforce.\n\nHowever, free universities are extremely expensive to maintain, and the money ultimately comes from taxpayers, many of whom never attend university themselves. A reasonable compromise is for governments to cover part of the cost and offer income-based loans, so that graduates repay only once they are earning comfortably.\n\nIn conclusion, although completely free education sounds appealing, I believe a balanced system combining public funding with modest, fair contributions offers the best outcome for individuals and the wider economy." },
+    { prompt:"More and more people are working from home rather than in a traditional office. Do the advantages of this trend outweigh the disadvantages?", model:"The number of people working from home has risen dramatically, and opinions are divided on its value. In my opinion, the advantages of remote work clearly outweigh the drawbacks for most employees.\n\nThe most obvious benefit is flexibility. Without a daily commute, workers save both time and money and can organise their day around family or exercise, which often leads to lower stress and higher productivity. Employers gain too, since they can reduce office costs and recruit talent regardless of location.\n\nThere are, admittedly, real disadvantages. Working alone can be isolating, and the boundary between work and home life easily becomes blurred. Collaboration may also suffer when colleagues rarely meet.\n\nNevertheless, these problems can be managed through regular video meetings, occasional office days and clear working hours. Given the significant savings in time, money and stress, I am convinced remote work's benefits are greater than its costs." },
+    { prompt:"Some people believe that subjects such as art and music are as important as science and mathematics in school. To what extent do you agree or disagree?", model:"It is sometimes argued that creative subjects like art and music deserve the same status as science and mathematics in schools. I strongly agree with this view, for both practical and personal reasons.\n\nFirstly, the arts develop skills the sciences alone cannot. Learning an instrument or painting trains creativity, patience and self-expression, qualities increasingly valued by employers in a world where routine tasks are automated. A pupil who thinks imaginatively is often better at solving problems in any field.\n\nSecondly, the arts contribute enormously to well-being. Music and drama give young people a way to manage emotion and build confidence, enriching life far beyond the classroom.\n\nOf course, science and mathematics remain essential, and I am not suggesting the arts should replace them. Rather, a balanced curriculum should treat both as important, allowing each child to discover where their talents lie." },
+    { prompt:"International tourism has brought enormous benefits to many places, but it can also damage the environment and local culture. Do the benefits of tourism outweigh its drawbacks?", model:"International tourism has grown into one of the world's largest industries, and while it brings clear benefits, it also carries serious risks. On balance, I believe its advantages can outweigh the drawbacks, provided it is managed responsibly.\n\nThe benefits are considerable. Tourism creates jobs in hotels, restaurants and transport, and visitor spending supports local economies that might otherwise have few opportunities. It can also encourage the preservation of historic sites, since these become valuable attractions.\n\nThe drawbacks, however, are real. Large crowds put pressure on fragile environments, and pollution often follows. Popular destinations may lose their character as local shops give way to souvenir stalls.\n\nThe key, therefore, is careful management. By limiting numbers at sensitive sites and investing tourist income in conservation, governments can capture the gains while reducing the harm. With thoughtful planning, tourism's economic and cultural benefits can comfortably outweigh its costs." },
+    { prompt:"Some people think protecting the environment is the responsibility of governments, while others believe individuals must take action. Discuss both views and give your own opinion.", model:"Responsibility for protecting the environment is often debated, with some insisting it lies with governments and others with individuals. In my view, meaningful progress requires action from both, working together.\n\nThose who emphasise government responsibility have a strong case. Only the state can pass laws, tax polluters and invest in clean energy on a national scale. Without firm regulation, many companies would continue to pollute in the name of profit.\n\nOn the other hand, personal choices matter enormously. When millions of people recycle, save energy or cycle, the combined effect is huge, and such habits also shift public opinion.\n\nIn reality, these two forces depend on each other: governments set the framework while citizens give those policies life and demand bolder ones. Rather than choosing between them, we should recognise that protecting the planet is a shared duty requiring effort at every level." },
+  ];
+
+  speakingBank = [
+    { title:'Describe a skill you would like to learn.', bullets:['what the skill is','how you would learn it','how long it might take','and explain why you want to learn this skill'] },
+    { title:'Describe a place where you feel relaxed.', bullets:['where this place is','how often you go there','what you do there','and explain why you find it relaxing'] },
+    { title:'Describe a person who has influenced you.', bullets:['who this person is','how you know them','what they have done','and explain how they influenced you'] },
+    { title:'Describe a memorable journey you have taken.', bullets:['where you went','who you travelled with','what happened','and explain why it was memorable'] },
+    { title:'Describe a website or app you find useful.', bullets:['what it is','how you found it','how often you use it','and explain why you find it useful'] },
+    { title:'Describe a work of art you like.', bullets:['what the artwork is','where you saw it','what it looks like','and explain why you like it'] },
+    { title:'Describe a goal you would like to achieve.', bullets:['what the goal is','how you plan to achieve it','how difficult it will be','and explain why this goal matters to you'] },
+    { title:'Describe a book that taught you something.', bullets:['what the book is','what it is about','when you read it','and explain what it taught you'] },
+    { title:'Describe a time you helped someone.', bullets:['who you helped','what the situation was','what you did','and explain how you felt afterwards'] },
+    { title:'Describe a piece of technology you find useful.', bullets:['what it is','how you use it','how often you use it','and explain why it is so useful to you'] },
+  ];
+
+  writingTips = [
+    "Address every part of the prompt — both views and your opinion.",
+    "State a clear position in the introduction.",
+    "One main idea per paragraph, supported with an example.",
+    "Use a range of linking words and complex sentences.",
+    "Write 250+ words in roughly 40 minutes.",
+  ];
+
+	  vocabBank = [
+    { name:'Environment', words:[
+      { w:'sustainable', ipa:'/səˈsteɪnəbl/', cn:'可持续的', en:'able to continue over time without harming resources', ex:'Cities are searching for more sustainable sources of energy.' },
+      { w:'emission', ipa:'/ɪˈmɪʃn/', cn:'排放（物）', en:'a substance, especially gas, sent out into the air', ex:'Strict limits were placed on carbon emissions from factories.' },
+      { w:'habitat', ipa:'/ˈhæbɪtæt/', cn:'栖息地', en:'the natural home of an animal or plant', ex:'Draining the marsh destroyed the habitat of many birds.' },
+      { w:'conserve', ipa:'/kənˈsɜːv/', cn:'保护；节约', en:'to protect something or use it carefully', ex:'Simple habits at home can help conserve water.' },
+      { w:'renewable', ipa:'/rɪˈnjuːəbl/', cn:'可再生的', en:'naturally replaced and therefore not used up', ex:'Wind is a clean, renewable form of power.' },
+      { w:'degrade', ipa:'/dɪˈɡreɪd/', cn:'使退化；降解', en:'to damage the quality or condition of something', ex:'Pollution has badly degraded the river over decades.' },
+      { w:'biodiversity', ipa:'/ˌbaɪoʊdaɪˈvɜːsəti/', cn:'生物多样性', en:'the variety of living things in a place', ex:'Rainforests contain extraordinary biodiversity.' },
+      { w:'contaminate', ipa:'/kənˈtæmɪneɪt/', cn:'污染', en:'to make something dirty or harmful', ex:'Waste from the plant contaminated the soil.' },
+      { w:'scarce', ipa:'/skers/', cn:'稀缺的', en:'available only in small amounts', ex:'Fresh water is becoming scarce in many regions.' },
+      { w:'depletion', ipa:'/dɪˈpliːʃn/', cn:'枯竭；耗尽', en:'the reduction of something until little is left', ex:'Over-fishing led to the depletion of cod stocks.' },
+    ]},
+    { name:'Education', words:[
+      { w:'curriculum', ipa:'/kəˈrɪkjələm/', cn:'课程（体系）', en:'the subjects studied in a school or course', ex:'The new curriculum places more weight on creativity.' },
+      { w:'literacy', ipa:'/ˈlɪtərəsi/', cn:'读写能力', en:'the ability to read and write', ex:'The programme aims to raise adult literacy.' },
+      { w:'tuition', ipa:'/tjuˈɪʃn/', cn:'学费；教学', en:'the money paid for teaching, or the teaching itself', ex:'University tuition has risen sharply in recent years.' },
+      { w:'discipline', ipa:'/ˈdɪsəplɪn/', cn:'纪律；学科', en:'controlled behaviour, or a field of study', ex:'Self-discipline is essential for independent study.' },
+      { w:'comprehensive', ipa:'/ˌkɒmprɪˈhensɪv/', cn:'全面的', en:'including everything that is necessary', ex:'She gave a comprehensive account of the research.' },
+      { w:'enrol', ipa:'/ɪnˈroʊl/', cn:'注册；报名', en:'to officially join a course or school', ex:'Thousands of students enrol online each year.' },
+      { w:'vocational', ipa:'/voʊˈkeɪʃənl/', cn:'职业的', en:'relating to skills for a particular job', ex:'Vocational training prepares students for the workplace.' },
+      { w:'assess', ipa:'/əˈses/', cn:'评估', en:'to judge the quality or value of something', ex:'Teachers assess progress through regular tests.' },
+      { w:'intellectual', ipa:'/ˌɪntəˈlektʃuəl/', cn:'智力的', en:'relating to thinking and understanding', ex:'Debate sharpens a child’s intellectual abilities.' },
+      { w:'foster', ipa:'/ˈfɒstər/', cn:'培养；促进', en:'to encourage the development of something', ex:'Good schools foster a love of learning.' },
+    ]},
+    { name:'Technology', words:[
+      { w:'innovation', ipa:'/ˌɪnəˈveɪʃn/', cn:'创新', en:'a new idea, method, or device', ex:'The smartphone was a remarkable innovation.' },
+      { w:'automate', ipa:'/ˈɔːtəmeɪt/', cn:'使自动化', en:'to make a process work by machine without people', ex:'Factories increasingly automate routine tasks.' },
+      { w:'device', ipa:'/dɪˈvaɪs/', cn:'设备', en:'a machine made for a particular purpose', ex:'Wearable devices can track your heart rate.' },
+      { w:'integrate', ipa:'/ˈɪntɪɡreɪt/', cn:'整合', en:'to combine things so they work together', ex:'The app integrates email and calendars in one place.' },
+      { w:'efficient', ipa:'/ɪˈfɪʃnt/', cn:'高效的', en:'working well without wasting time or energy', ex:'Newer engines are far more efficient.' },
+      { w:'data', ipa:'/ˈdeɪtə/', cn:'数据', en:'facts or information used for analysis', ex:'The study collected data from 300 workers.' },
+      { w:'obsolete', ipa:'/ˈɒbsəliːt/', cn:'过时的', en:'no longer used because something newer exists', ex:'Smartphones quickly made many gadgets obsolete.' },
+      { w:'enhance', ipa:'/ɪnˈhɑːns/', cn:'增强', en:'to improve the quality or value of something', ex:'Subtitles can enhance the viewing experience.' },
+      { w:'reliable', ipa:'/rɪˈlaɪəbl/', cn:'可靠的', en:'able to be trusted to work well', ex:'We need a reliable internet connection.' },
+      { w:'accessible', ipa:'/əkˈsesəbl/', cn:'易获取的', en:'easy to reach, use, or understand', ex:'The technology makes learning more accessible.' },
+    ]},
+    { name:'Society', words:[
+      { w:'inequality', ipa:'/ˌɪnɪˈkwɒləti/', cn:'不平等', en:'an unfair difference between groups of people', ex:'The report highlights growing income inequality.' },
+      { w:'urbanisation', ipa:'/ˌɜːbənaɪˈzeɪʃn/', cn:'城市化', en:'the growth of towns and cities', ex:'Rapid urbanisation has strained public transport.' },
+      { w:'community', ipa:'/kəˈmjuːnəti/', cn:'社区', en:'a group of people living or working together', ex:'Volunteers strengthen the local community.' },
+      { w:'diverse', ipa:'/daɪˈvɜːs/', cn:'多样的', en:'made up of many different kinds', ex:'The city has a richly diverse population.' },
+      { w:'welfare', ipa:'/ˈwelfeər/', cn:'福利', en:'the health and happiness of people', ex:'The state provides welfare for those in need.' },
+      { w:'migrate', ipa:'/maɪˈɡreɪt/', cn:'迁移', en:'to move from one place to another to live', ex:'Many workers migrate to cities for jobs.' },
+      { w:'norm', ipa:'/nɔːm/', cn:'规范；常态', en:'an accepted standard of behaviour', ex:'Remote work has become the norm for many.' },
+      { w:'integration', ipa:'/ˌɪntɪˈɡreɪʃn/', cn:'融合', en:'the process of becoming part of a group', ex:'Language classes aid the integration of newcomers.' },
+      { w:'prosperity', ipa:'/prɒˈsperəti/', cn:'繁荣', en:'the state of being successful, usually financially', ex:'Trade brought prosperity to the region.' },
+      { w:'demographic', ipa:'/ˌdeməˈɡræfɪk/', cn:'人口的', en:'relating to the make-up of a population', ex:'An ageing demographic puts pressure on pensions.' },
+    ]},
+    { name:'Health', words:[
+      { w:'nutrition', ipa:'/njuˈtrɪʃn/', cn:'营养', en:'the food needed for health and growth', ex:'Good nutrition supports a strong immune system.' },
+      { w:'chronic', ipa:'/ˈkrɒnɪk/', cn:'慢性的', en:'lasting for a long time, of an illness', ex:'Chronic stress can harm the heart.' },
+      { w:'sedentary', ipa:'/ˈsedntri/', cn:'久坐的', en:'involving a lot of sitting and little exercise', ex:'A sedentary lifestyle raises health risks.' },
+      { w:'immune', ipa:'/ɪˈmjuːn/', cn:'免疫的', en:'protected against a disease', ex:'Sleep helps keep the immune system strong.' },
+      { w:'wellbeing', ipa:'/ˌwelˈbiːɪŋ/', cn:'幸福；健康', en:'the state of being comfortable and healthy', ex:'Time in nature improves mental wellbeing.' },
+      { w:'epidemic', ipa:'/ˌepɪˈdemɪk/', cn:'流行病', en:'a disease spreading quickly among many people', ex:'Officials acted fast to contain the epidemic.' },
+      { w:'remedy', ipa:'/ˈremədi/', cn:'疗法；补救', en:'a treatment or way of solving a problem', ex:'Rest is often the best remedy for a cold.' },
+      { w:'symptom', ipa:'/ˈsɪmptəm/', cn:'症状', en:'a sign that you have an illness', ex:'A high temperature is a common symptom.' },
+      { w:'preventive', ipa:'/prɪˈventɪv/', cn:'预防性的', en:'intended to stop something before it happens', ex:'Preventive care reduces hospital visits.' },
+      { w:'fatigue', ipa:'/fəˈtiːɡ/', cn:'疲劳', en:'extreme tiredness', ex:'Long shifts can cause severe fatigue.' },
+    ]},
+    { name:'Work', words:[
+      { w:'productivity', ipa:'/ˌprɒdʌkˈtɪvəti/', cn:'生产力', en:'the rate at which work is done', ex:'Short breaks can boost productivity.' },
+      { w:'colleague', ipa:'/ˈkɒliːɡ/', cn:'同事', en:'a person you work with', ex:'She collaborates well with her colleagues.' },
+      { w:'flexible', ipa:'/ˈfleksəbl/', cn:'灵活的', en:'able to change to suit new conditions', ex:'Many firms now offer flexible hours.' },
+      { w:'incentive', ipa:'/ɪnˈsentɪv/', cn:'激励', en:'something that encourages you to act', ex:'Bonuses act as an incentive to work harder.' },
+      { w:'expertise', ipa:'/ˌekspɜːˈtiːz/', cn:'专业知识', en:'a high level of skill or knowledge', ex:'We hired her for her technical expertise.' },
+      { w:'collaborate', ipa:'/kəˈlæbəreɪt/', cn:'合作', en:'to work together on a task', ex:'Designers and engineers collaborate closely.' },
+      { w:'deadline', ipa:'/ˈdedlaɪn/', cn:'截止期限', en:'a time by which something must be finished', ex:'We met the deadline despite the delays.' },
+      { w:'redundant', ipa:'/rɪˈdʌndənt/', cn:'被裁员的；多余的', en:'no longer needed, often of a job', ex:'Hundreds were made redundant when the plant closed.' },
+      { w:'morale', ipa:'/məˈrɑːl/', cn:'士气', en:'the confidence and spirit of a group', ex:'Praise from managers lifts team morale.' },
+      { w:'delegate', ipa:'/ˈdelɪɡeɪt/', cn:'委派', en:'to give a task to someone else', ex:'Good leaders delegate tasks effectively.' },
+    ]},
+    { name:'Travel', words:[
+      { w:'itinerary', ipa:'/aɪˈtɪnərəri/', cn:'行程', en:'a plan of a journey, listing places to visit', ex:'Our itinerary included three cities in a week.' },
+      { w:'destination', ipa:'/ˌdestɪˈneɪʃn/', cn:'目的地', en:'the place to which someone is travelling', ex:'The island is a popular holiday destination.' },
+      { w:'accommodation', ipa:'/əˌkɒməˈdeɪʃn/', cn:'住宿', en:'a place to stay or live', ex:'We booked our accommodation months in advance.' },
+      { w:'excursion', ipa:'/ɪkˈskɜːʃn/', cn:'短途旅行', en:'a short journey made for pleasure', ex:'The hotel offers excursions to nearby ruins.' },
+      { w:'remote', ipa:'/rɪˈmoʊt/', cn:'偏远的', en:'far away from towns or other people', ex:'They hiked to a remote mountain village.' },
+      { w:'voyage', ipa:'/ˈvɔɪɪdʒ/', cn:'航行；航程', en:'a long journey, especially by sea', ex:'The voyage across the ocean took two weeks.' },
+      { w:'scenic', ipa:'/ˈsiːnɪk/', cn:'风景优美的', en:'having beautiful natural views', ex:'We took the scenic route along the coast.' },
+      { w:'departure', ipa:'/dɪˈpɑːtʃər/', cn:'离开；出发', en:'the act of leaving a place', ex:'Our departure was delayed by bad weather.' },
+      { w:'commute', ipa:'/kəˈmjuːt/', cn:'通勤', en:'to travel regularly between home and work', ex:'She commutes by train every morning.' },
+      { w:'expedition', ipa:'/ˌekspəˈdɪʃn/', cn:'探险；远征', en:'an organised journey with a purpose', ex:'The team joined an expedition to the Arctic.' },
+    ]},
+    { name:'Media', words:[
+      { w:'broadcast', ipa:'/ˈbrɔːdkɑːst/', cn:'广播；播放', en:'to send out a programme on TV or radio', ex:'The match was broadcast live around the world.' },
+      { w:'journalism', ipa:'/ˈdʒɜːnəlɪzəm/', cn:'新闻业', en:'the work of collecting and reporting news', ex:'Honest journalism holds the powerful to account.' },
+      { w:'influence', ipa:'/ˈɪnfluəns/', cn:'影响', en:'the power to affect how people think or act', ex:'Advertising has a strong influence on children.' },
+      { w:'audience', ipa:'/ˈɔːdiəns/', cn:'观众；受众', en:'the people who watch, read, or listen', ex:'The show reached a huge global audience.' },
+      { w:'bias', ipa:'/ˈbaɪəs/', cn:'偏见', en:'an unfair preference for or against something', ex:'Readers should watch for bias in the news.' },
+      { w:'coverage', ipa:'/ˈkʌvərɪdʒ/', cn:'报道', en:'the reporting of an event by the media', ex:'The election received round-the-clock coverage.' },
+      { w:'censorship', ipa:'/ˈsensəʃɪp/', cn:'审查制度', en:'the control or banning of information', ex:'Censorship limits what journalists can report.' },
+      { w:'misinformation', ipa:'/ˌmɪsɪnfəˈmeɪʃn/', cn:'错误信息', en:'false information that is spread, often online', ex:'Social media can spread misinformation quickly.' },
+      { w:'subscription', ipa:'/səbˈskrɪpʃn/', cn:'订阅', en:'an arrangement to receive something regularly', ex:'A monthly subscription unlocks every article.' },
+      { w:'credible', ipa:'/ˈkredəbl/', cn:'可信的', en:'able to be believed or trusted', ex:'Always check a story against credible sources.' },
+    ]},
+    { name:'Speaking', words:[
+      { w:'memorable', ipa:'/ˈmemərəbl/', cn:'难忘的', en:'worth remembering because it is special', ex:'It was a memorable trip because I travelled with my closest friends.' },
+      { w:'impressive', ipa:'/ɪmˈpresɪv/', cn:'令人印象深刻的', en:'causing admiration or respect', ex:'The most impressive thing about the museum was its modern design.' },
+      { w:'convenient', ipa:'/kənˈviːniənt/', cn:'方便的', en:'easy and useful for a particular situation', ex:'Online booking is convenient because it saves a lot of time.' },
+      { w:'relaxing', ipa:'/rɪˈlæksɪŋ/', cn:'令人放松的', en:'making you feel calm and less worried', ex:'I find walking in a park extremely relaxing after a busy day.' },
+      { w:'challenging', ipa:'/ˈtʃælɪndʒɪŋ/', cn:'有挑战性的', en:'difficult in an interesting or useful way', ex:'Learning pronunciation is challenging, but it is also rewarding.' },
+      { w:'rewarding', ipa:'/rɪˈwɔːdɪŋ/', cn:'有回报的；值得的', en:'making you feel satisfied because it is useful or meaningful', ex:'Teaching children can be tiring, but it is deeply rewarding.' },
+      { w:'practical', ipa:'/ˈpræktɪkl/', cn:'实用的', en:'useful and suitable for real situations', ex:'This app is practical because I can use it while commuting.' },
+      { w:'spacious', ipa:'/ˈspeɪʃəs/', cn:'宽敞的', en:'having a lot of space', ex:'My favourite cafe is bright, spacious and quiet enough for study.' },
+      { w:'ordinary', ipa:'/ˈɔːdnri/', cn:'普通的', en:'not special or unusual', ex:'It was an ordinary day, but the conversation made it unforgettable.' },
+      { w:'meaningful', ipa:'/ˈmiːnɪŋfl/', cn:'有意义的', en:'important or valuable to someone', ex:'Receiving that book was meaningful because it came from my grandfather.' },
+    ]},
+    { name:'Writing', words:[
+      { w:'argue', ipa:'/ˈɑːɡjuː/', cn:'主张；论证', en:'to give reasons for or against an idea', ex:'Some people argue that university should be free for everyone.' },
+      { w:'claim', ipa:'/kleɪm/', cn:'声称；主张', en:'to say that something is true', ex:'Critics claim that advertising puts too much pressure on children.' },
+      { w:'evidence', ipa:'/ˈevɪdəns/', cn:'证据', en:'facts that show whether something is true', ex:'There is clear evidence that exercise improves mental health.' },
+      { w:'assumption', ipa:'/əˈsʌmpʃn/', cn:'假设', en:'something believed to be true without proof', ex:'The argument is based on the assumption that all students learn in the same way.' },
+      { w:'outweigh', ipa:'/ˌaʊtˈweɪ/', cn:'超过；比...更重要', en:'to be greater or more important than something else', ex:'In my opinion, the benefits of remote work outweigh the drawbacks.' },
+      { w:'drawback', ipa:'/ˈdrɔːbæk/', cn:'缺点', en:'a disadvantage or problem', ex:'One drawback of city life is the high cost of housing.' },
+      { w:'tendency', ipa:'/ˈtendənsi/', cn:'倾向；趋势', en:'a natural or common way of behaving', ex:'Teenagers have a tendency to spend long hours online.' },
+      { w:'controversial', ipa:'/ˌkɒntrəˈvɜːʃl/', cn:'有争议的', en:'causing strong disagreement', ex:'Animal testing remains a controversial issue in many countries.' },
+      { w:'fundamental', ipa:'/ˌfʌndəˈmentl/', cn:'根本的；基本的', en:'very basic and important', ex:'Education is a fundamental right, not a luxury.' },
+      { w:'alternative', ipa:'/ɔːlˈtɜːnətɪv/', cn:'替代选择', en:'another choice or possibility', ex:'Cycling is a cleaner alternative to driving for short journeys.' },
+    ]},
+    { name:'Government', words:[
+      { w:'authority', ipa:'/ɔːˈθɒrəti/', cn:'当局；权威', en:'a person or organisation with official power', ex:'Local authorities should invest more in public transport.' },
+      { w:'regulation', ipa:'/ˌreɡjuˈleɪʃn/', cn:'规定；监管', en:'an official rule that controls how something is done', ex:'Stronger regulation is needed to reduce industrial pollution.' },
+      { w:'legislation', ipa:'/ˌledʒɪsˈleɪʃn/', cn:'法律；立法', en:'a law or set of laws', ex:'New legislation made smoking illegal in indoor public places.' },
+      { w:'taxation', ipa:'/tækˈseɪʃn/', cn:'税收', en:'the system of collecting money from people by government', ex:'Taxation can be used to discourage unhealthy products.' },
+      { w:'subsidy', ipa:'/ˈsʌbsədi/', cn:'补贴', en:'money paid by government to support something', ex:'A subsidy can make public transport cheaper for commuters.' },
+      { w:'infrastructure', ipa:'/ˈɪnfrəstrʌktʃə/', cn:'基础设施', en:'basic systems such as roads, schools and power supplies', ex:'Good infrastructure is essential for economic growth.' },
+      { w:'initiative', ipa:'/ɪˈnɪʃətɪv/', cn:'倡议；新措施', en:'a new plan to solve a problem', ex:'The city launched an initiative to plant more trees.' },
+      { w:'implement', ipa:'/ˈɪmplɪment/', cn:'实施', en:'to put a plan or rule into action', ex:'It is difficult to implement a policy without enough funding.' },
+      { w:'budget', ipa:'/ˈbʌdʒɪt/', cn:'预算', en:'the amount of money available for a purpose', ex:'The education budget should focus on teacher training.' },
+      { w:'accountable', ipa:'/əˈkaʊntəbl/', cn:'负有责任的', en:'expected to explain decisions and accept responsibility', ex:'Public officials should be accountable to the people they serve.' },
+    ]},
+    { name:'Culture', words:[
+      { w:'heritage', ipa:'/ˈherɪtɪdʒ/', cn:'遗产；传统', en:'traditions or buildings from the past', ex:'Historic buildings are an important part of our cultural heritage.' },
+      { w:'tradition', ipa:'/trəˈdɪʃn/', cn:'传统', en:'a belief or custom passed down over time', ex:'Family meals are an important tradition in many cultures.' },
+      { w:'identity', ipa:'/aɪˈdentəti/', cn:'身份；认同', en:'who someone is, or what makes a group distinct', ex:'Language is closely linked to cultural identity.' },
+      { w:'custom', ipa:'/ˈkʌstəm/', cn:'习俗', en:'a traditional way of behaving', ex:'It is a local custom to give visitors tea.' },
+      { w:'preserve', ipa:'/prɪˈzɜːv/', cn:'保护；保留', en:'to keep something safe or unchanged', ex:'Museums help preserve objects from the past.' },
+      { w:'multicultural', ipa:'/ˌmʌltiˈkʌltʃərəl/', cn:'多元文化的', en:'including people or ideas from many cultures', ex:'A multicultural city can be exciting and open-minded.' },
+      { w:'adaptation', ipa:'/ˌædæpˈteɪʃn/', cn:'适应；改编', en:'a change made to suit a new situation', ex:'Cultural adaptation is often necessary after moving abroad.' },
+      { w:'artistic', ipa:'/ɑːˈtɪstɪk/', cn:'艺术的', en:'connected with art or creativity', ex:'Artistic subjects help children express their emotions.' },
+      { w:'symbolic', ipa:'/sɪmˈbɒlɪk/', cn:'象征性的', en:'representing a larger idea or feeling', ex:'The old bridge has symbolic value for local residents.' },
+      { w:'distinctive', ipa:'/dɪˈstɪŋktɪv/', cn:'有特色的', en:'easy to recognise because it is different', ex:'The city is famous for its distinctive architecture.' },
+    ]},
+	  ];
+
+	  extraVocabBank = {
+	    Environment:[
+	      { w:'mitigate', ipa:'/ˈmɪtɪɡeɪt/', cn:'减轻；缓解', en:'to make a problem less serious', ex:'Planting trees can help mitigate the effects of air pollution.' },
+	      { w:'ecosystem', ipa:'/ˈiːkoʊsɪstəm/', cn:'生态系统', en:'all living things in an area and their environment', ex:'Plastic waste can damage the marine ecosystem.' },
+	      { w:'landfill', ipa:'/ˈlændfɪl/', cn:'垃圾填埋场', en:'a place where waste is buried under the ground', ex:'More recycling would reduce the amount of waste sent to landfill.' },
+	      { w:'carbon footprint', ipa:'/ˌkɑːrbən ˈfʊtprɪnt/', cn:'碳足迹', en:'the amount of carbon dioxide produced by a person or activity', ex:'Flying frequently increases a person’s carbon footprint.' },
+	      { w:'deforestation', ipa:'/diːˌfɔːrɪˈsteɪʃn/', cn:'森林砍伐', en:'the cutting down of large areas of forest', ex:'Deforestation threatens wildlife and local communities.' },
+	      { w:'pollutant', ipa:'/pəˈluːtənt/', cn:'污染物', en:'a substance that makes air, water or soil dirty', ex:'Vehicle exhaust releases harmful pollutants into the air.' },
+	      { w:'ecological', ipa:'/ˌiːkəˈlɑːdʒɪkl/', cn:'生态的', en:'relating to living things and their environment', ex:'Tourism can cause serious ecological damage if it is unmanaged.' },
+	      { w:'finite', ipa:'/ˈfaɪnaɪt/', cn:'有限的', en:'having a limit or end', ex:'Fossil fuels are finite resources.' },
+	      { w:'conservation', ipa:'/ˌkɑːnsərˈveɪʃn/', cn:'保护；保存', en:'the protection of nature or resources', ex:'Conservation projects can protect endangered species.' },
+	      { w:'sustainability', ipa:'/səˌsteɪnəˈbɪləti/', cn:'可持续性', en:'the ability to continue without damaging the future', ex:'Sustainability should be a priority in urban planning.' },
+	    ],
+	    Education:[
+	      { w:'pedagogy', ipa:'/ˈpedəɡɑːdʒi/', cn:'教学法', en:'the method and practice of teaching', ex:'Modern pedagogy encourages students to think independently.' },
+	      { w:'aptitude', ipa:'/ˈæptɪtuːd/', cn:'天资；能力倾向', en:'a natural ability to learn or do something', ex:'Tests do not always measure a child’s true aptitude.' },
+	      { w:'proficiency', ipa:'/prəˈfɪʃnsi/', cn:'熟练程度', en:'a high level of ability in a skill', ex:'Language proficiency improves with regular practice.' },
+	      { w:'qualification', ipa:'/ˌkwɑːlɪfɪˈkeɪʃn/', cn:'资格；学历', en:'an official record of achievement or training', ex:'Many employers require formal qualifications.' },
+	      { w:'scholarship', ipa:'/ˈskɑːlərʃɪp/', cn:'奖学金', en:'money given to support a student’s education', ex:'Scholarships can make higher education more accessible.' },
+	      { w:'compulsory', ipa:'/kəmˈpʌlsəri/', cn:'强制的；必修的', en:'required by rule or law', ex:'Physical education is compulsory in many schools.' },
+	      { w:'interactive', ipa:'/ˌɪntərˈæktɪv/', cn:'互动的', en:'involving communication between people or systems', ex:'Interactive lessons often keep students more engaged.' },
+	      { w:'academic', ipa:'/ˌækəˈdemɪk/', cn:'学术的', en:'relating to education and study', ex:'Academic pressure can affect students’ mental health.' },
+	      { w:'critical thinking', ipa:'/ˌkrɪtɪkl ˈθɪŋkɪŋ/', cn:'批判性思维', en:'the ability to judge ideas carefully and logically', ex:'Universities should develop critical thinking, not just memory.' },
+	      { w:'lifelong learning', ipa:'/ˌlaɪflɔːŋ ˈlɜːrnɪŋ/', cn:'终身学习', en:'learning that continues throughout life', ex:'Lifelong learning is essential in a changing job market.' },
+	    ],
+	    Technology:[
+	      { w:'algorithm', ipa:'/ˈælɡərɪðəm/', cn:'算法', en:'a set of rules used by a computer to solve a problem', ex:'Social media algorithms shape what people see online.' },
+	      { w:'artificial intelligence', ipa:'/ˌɑːrtɪˈfɪʃl ɪnˈtelɪdʒəns/', cn:'人工智能', en:'computer systems that can perform tasks requiring intelligence', ex:'Artificial intelligence may transform medical diagnosis.' },
+	      { w:'surveillance', ipa:'/sərˈveɪləns/', cn:'监控', en:'careful watching, especially by authorities or technology', ex:'Digital surveillance raises concerns about privacy.' },
+	      { w:'cybersecurity', ipa:'/ˌsaɪbərsɪˈkjʊrəti/', cn:'网络安全', en:'protection of computer systems and data', ex:'Companies must invest more in cybersecurity.' },
+	      { w:'automation', ipa:'/ˌɔːtəˈmeɪʃn/', cn:'自动化', en:'the use of machines to do work with little human help', ex:'Automation can increase efficiency but may reduce jobs.' },
+	      { w:'digital literacy', ipa:'/ˌdɪdʒɪtl ˈlɪtərəsi/', cn:'数字素养', en:'the ability to use digital tools effectively', ex:'Digital literacy is now a basic workplace skill.' },
+	      { w:'breakthrough', ipa:'/ˈbreɪkθruː/', cn:'突破', en:'an important discovery or development', ex:'The vaccine was a major scientific breakthrough.' },
+	      { w:'user-friendly', ipa:'/ˌjuːzər ˈfrendli/', cn:'用户友好的', en:'easy for people to use', ex:'A user-friendly design helps older people access services.' },
+	      { w:'cutting-edge', ipa:'/ˌkʌtɪŋ ˈedʒ/', cn:'尖端的', en:'using the newest and most advanced ideas', ex:'The hospital uses cutting-edge medical equipment.' },
+	      { w:'privacy', ipa:'/ˈpraɪvəsi/', cn:'隐私', en:'the right to keep personal information secret', ex:'Many apps collect data in ways that threaten privacy.' },
+	    ],
+	    Society:[
+	      { w:'social cohesion', ipa:'/ˌsoʊʃl koʊˈhiːʒn/', cn:'社会凝聚力', en:'the strength of relationships within a society', ex:'Shared public spaces can improve social cohesion.' },
+	      { w:'marginalised', ipa:'/ˈmɑːrdʒɪnəlaɪzd/', cn:'被边缘化的', en:'treated as unimportant or pushed to the edge of society', ex:'Education can support marginalised groups.' },
+	      { w:'affluent', ipa:'/ˈæfluənt/', cn:'富裕的', en:'having a lot of money or resources', ex:'Affluent families often have more educational opportunities.' },
+	      { w:'deprived', ipa:'/dɪˈpraɪvd/', cn:'贫困的；缺乏资源的', en:'lacking things needed for a good life', ex:'Deprived areas need better public services.' },
+	      { w:'inclusion', ipa:'/ɪnˈkluːʒn/', cn:'包容；纳入', en:'the act of making people part of a group', ex:'Sports can promote social inclusion.' },
+	      { w:'mobility', ipa:'/moʊˈbɪləti/', cn:'流动性', en:'the ability to move or change social position', ex:'Education increases social mobility.' },
+	      { w:'polarisation', ipa:'/ˌpoʊlərəˈzeɪʃn/', cn:'两极分化', en:'division into two strongly opposing groups', ex:'Online debate can increase political polarisation.' },
+	      { w:'civic', ipa:'/ˈsɪvɪk/', cn:'公民的；城市的', en:'relating to citizens and public life', ex:'Schools should encourage civic responsibility.' },
+	      { w:'livelihood', ipa:'/ˈlaɪvlihʊd/', cn:'生计', en:'the way someone earns money to live', ex:'Tourism provides a livelihood for many local families.' },
+	      { w:'social fabric', ipa:'/ˌsoʊʃl ˈfæbrɪk/', cn:'社会结构；社会纽带', en:'the relationships and values that hold society together', ex:'Rapid change can weaken the social fabric of a community.' },
+	    ],
+	    Health:[
+	      { w:'obesity', ipa:'/oʊˈbiːsəti/', cn:'肥胖', en:'a condition of being very overweight', ex:'Childhood obesity is a growing public health concern.' },
+	      { w:'diagnosis', ipa:'/ˌdaɪəɡˈnoʊsɪs/', cn:'诊断', en:'the identification of an illness or problem', ex:'Early diagnosis can save lives.' },
+	      { w:'therapy', ipa:'/ˈθerəpi/', cn:'治疗；疗法', en:'treatment for a physical or mental problem', ex:'Therapy can help people manage anxiety.' },
+	      { w:'public health', ipa:'/ˌpʌblɪk ˈhelθ/', cn:'公共卫生', en:'the health of people in a community', ex:'Vaccination is an important public health measure.' },
+	      { w:'life expectancy', ipa:'/ˌlaɪf ɪkˈspektənsi/', cn:'预期寿命', en:'the average number of years people are expected to live', ex:'Life expectancy has risen in many countries.' },
+	      { w:'mental health', ipa:'/ˌmentl ˈhelθ/', cn:'心理健康', en:'a person’s emotional and psychological condition', ex:'Schools should pay more attention to mental health.' },
+	      { w:'balanced diet', ipa:'/ˌbælənst ˈdaɪət/', cn:'均衡饮食', en:'a diet containing the right types of food', ex:'A balanced diet can prevent many health problems.' },
+	      { w:'healthcare', ipa:'/ˈhelθker/', cn:'医疗保健', en:'services for treating and preventing illness', ex:'Affordable healthcare should be available to everyone.' },
+	      { w:'rehabilitation', ipa:'/ˌriːəˌbɪlɪˈteɪʃn/', cn:'康复', en:'the process of returning to health or normal life', ex:'Rehabilitation helps patients recover after surgery.' },
+	      { w:'vulnerable', ipa:'/ˈvʌlnərəbl/', cn:'脆弱的；易受伤害的', en:'easily harmed or affected', ex:'The elderly are vulnerable during heatwaves.' },
+	    ],
+	    Work:[
+	      { w:'entrepreneur', ipa:'/ˌɑːntrəprəˈnɜːr/', cn:'企业家；创业者', en:'someone who starts and runs a business', ex:'Young entrepreneurs often bring fresh ideas to the market.' },
+	      { w:'workforce', ipa:'/ˈwɜːrkfɔːrs/', cn:'劳动力', en:'all the people who work in a company or country', ex:'Automation will change the future workforce.' },
+	      { w:'job satisfaction', ipa:'/ˈdʒɑːb sætɪsˌfækʃn/', cn:'工作满意度', en:'the feeling of being happy with one’s job', ex:'Flexible hours can improve job satisfaction.' },
+	      { w:'promotion', ipa:'/prəˈmoʊʃn/', cn:'晋升', en:'a move to a higher position at work', ex:'Training can increase the chance of promotion.' },
+	      { w:'workload', ipa:'/ˈwɜːrkloʊd/', cn:'工作量', en:'the amount of work someone has to do', ex:'A heavy workload can lead to stress.' },
+	      { w:'burnout', ipa:'/ˈbɜːrnaʊt/', cn:'职业倦怠', en:'extreme tiredness caused by too much work', ex:'Long hours may cause burnout among employees.' },
+	      { w:'recruit', ipa:'/rɪˈkruːt/', cn:'招聘', en:'to find new people to work for an organisation', ex:'Companies recruit graduates with strong communication skills.' },
+	      { w:'retain', ipa:'/rɪˈteɪn/', cn:'留住；保持', en:'to keep someone or something', ex:'Good management helps retain talented staff.' },
+	      { w:'remote work', ipa:'/rɪˌmoʊt ˈwɜːrk/', cn:'远程工作', en:'working away from a traditional office', ex:'Remote work gives employees more flexibility.' },
+	      { w:'career prospects', ipa:'/kəˈrɪr ˈprɑːspekts/', cn:'职业前景', en:'future opportunities in a career', ex:'Internships can improve career prospects.' },
+	    ],
+	    Travel:[
+	      { w:'tourism', ipa:'/ˈtʊrɪzəm/', cn:'旅游业', en:'the business of people travelling for pleasure', ex:'Tourism creates jobs but can damage local culture.' },
+	      { w:'heritage site', ipa:'/ˈherɪtɪdʒ saɪt/', cn:'遗产地', en:'a place important for history or culture', ex:'Visitors should respect heritage sites.' },
+	      { w:'overcrowded', ipa:'/ˌoʊvərˈkraʊdɪd/', cn:'过度拥挤的', en:'having too many people', ex:'Popular destinations become overcrowded during holidays.' },
+	      { w:'seasonal', ipa:'/ˈsiːzənl/', cn:'季节性的', en:'happening during a particular season', ex:'Tourism jobs are often seasonal.' },
+	      { w:'hospitality', ipa:'/ˌhɑːspɪˈtæləti/', cn:'酒店餐饮业；好客', en:'the business of hotels and restaurants, or friendly treatment of guests', ex:'The hospitality industry depends heavily on tourists.' },
+	      { w:'cultural exchange', ipa:'/ˌkʌltʃərəl ɪksˈtʃeɪndʒ/', cn:'文化交流', en:'sharing ideas and customs between cultures', ex:'Travel encourages cultural exchange.' },
+	      { w:'souvenir', ipa:'/ˌsuːvəˈnɪr/', cn:'纪念品', en:'something bought to remember a place', ex:'Many tourists buy souvenirs from local markets.' },
+	      { w:'passport', ipa:'/ˈpæspɔːrt/', cn:'护照', en:'an official document used for international travel', ex:'You need a valid passport to travel abroad.' },
+	      { w:'visa', ipa:'/ˈviːzə/', cn:'签证', en:'permission to enter or stay in a country', ex:'Some students need a visa before studying overseas.' },
+	      { w:'sightseeing', ipa:'/ˈsaɪtsiːɪŋ/', cn:'观光', en:'visiting interesting places as a tourist', ex:'We spent the afternoon sightseeing in the old city.' },
+	    ],
+	    Media:[
+	      { w:'sensational', ipa:'/senˈseɪʃənl/', cn:'耸人听闻的', en:'intended to shock or excite people', ex:'Sensational headlines may distort the truth.' },
+	      { w:'platform', ipa:'/ˈplætfɔːrm/', cn:'平台', en:'a digital service for sharing content', ex:'Video platforms influence how young people spend their time.' },
+	      { w:'regulate', ipa:'/ˈreɡjuleɪt/', cn:'监管；调节', en:'to control something by rules', ex:'Governments may need to regulate online advertising.' },
+	      { w:'exposure', ipa:'/ɪkˈspoʊʒər/', cn:'接触；曝光', en:'the state of experiencing or seeing something', ex:'Too much exposure to violent content may affect children.' },
+	      { w:'viewer', ipa:'/ˈvjuːər/', cn:'观众', en:'a person who watches television or online video', ex:'Streaming services compete for viewers.' },
+	      { w:'circulation', ipa:'/ˌsɜːrkjəˈleɪʃn/', cn:'发行量；传播', en:'the number of copies distributed', ex:'Newspaper circulation has fallen in recent years.' },
+	      { w:'source', ipa:'/sɔːrs/', cn:'来源', en:'where information comes from', ex:'Students should check the source of online information.' },
+	      { w:'editorial', ipa:'/ˌedɪˈtɔːriəl/', cn:'编辑的；社论的', en:'relating to editors or opinions in media', ex:'Editorial independence is important for journalism.' },
+	      { w:'viral', ipa:'/ˈvaɪrəl/', cn:'病毒式传播的', en:'spreading very quickly online', ex:'A short video can go viral within hours.' },
+	      { w:'media literacy', ipa:'/ˌmiːdiə ˈlɪtərəsi/', cn:'媒体素养', en:'the ability to judge media messages critically', ex:'Media literacy helps people recognise misinformation.' },
+	    ],
+	    Speaking:[
+	      { w:'fascinating', ipa:'/ˈfæsɪneɪtɪŋ/', cn:'迷人的；极有趣的', en:'extremely interesting', ex:'The most fascinating part of the city is its old market.' },
+	      { w:'affordable', ipa:'/əˈfɔːrdəbl/', cn:'负担得起的', en:'cheap enough for ordinary people to buy', ex:'The restaurant is affordable and the food is fresh.' },
+	      { w:'stressful', ipa:'/ˈstresfl/', cn:'有压力的', en:'causing worry or tension', ex:'Preparing for exams can be stressful.' },
+	      { w:'time-consuming', ipa:'/ˈtaɪm kənsuːmɪŋ/', cn:'耗时的', en:'taking a lot of time', ex:'Cooking at home is healthy but time-consuming.' },
+	      { w:'eye-opening', ipa:'/ˈaɪ oʊpənɪŋ/', cn:'开眼界的', en:'making you realise something new', ex:'My first trip abroad was eye-opening.' },
+	      { w:'well-organised', ipa:'/ˌwel ˈɔːrɡənaɪzd/', cn:'安排有序的', en:'planned in a clear and effective way', ex:'The exhibition was well-organised and easy to follow.' },
+	      { w:'lively', ipa:'/ˈlaɪvli/', cn:'热闹的；充满活力的', en:'full of energy and activity', ex:'The city centre is lively at night.' },
+	      { w:'peaceful', ipa:'/ˈpiːsfl/', cn:'宁静的', en:'quiet and calm', ex:'I prefer peaceful places when I want to relax.' },
+	      { w:'worthwhile', ipa:'/ˌwɜːrθˈwaɪl/', cn:'值得的', en:'worth the time or effort', ex:'Learning a new skill is difficult but worthwhile.' },
+	      { w:'unforgettable', ipa:'/ˌʌnfərˈɡetəbl/', cn:'难以忘怀的', en:'impossible to forget', ex:'It was an unforgettable experience for me.' },
+	    ],
+	    Writing:[
+	      { w:'moreover', ipa:'/mɔːrˈoʊvər/', cn:'此外', en:'used to add another reason or point', ex:'Public transport is cheaper; moreover, it reduces traffic.' },
+	      { w:'nevertheless', ipa:'/ˌnevərðəˈles/', cn:'然而；尽管如此', en:'despite what has just been said', ex:'The policy is expensive; nevertheless, it may be necessary.' },
+	      { w:'whereas', ipa:'/ˌwerˈæz/', cn:'然而；而', en:'used to compare two different facts', ex:'Some people prefer cities, whereas others enjoy rural life.' },
+	      { w:'therefore', ipa:'/ˈðerfɔːr/', cn:'因此', en:'for that reason', ex:'The cost is high; therefore, government support is needed.' },
+	      { w:'consequently', ipa:'/ˈkɑːnsɪkwentli/', cn:'因此；结果', en:'as a result', ex:'Many people drive to work; consequently, traffic congestion increases.' },
+	      { w:'notably', ipa:'/ˈnoʊtəbli/', cn:'尤其；显著地', en:'especially or importantly', ex:'Several countries, notably Japan, have ageing populations.' },
+	      { w:'substantial', ipa:'/səbˈstænʃl/', cn:'大量的；重大的', en:'large or important', ex:'The project requires substantial investment.' },
+	      { w:'approximately', ipa:'/əˈprɑːksɪmətli/', cn:'大约', en:'about or roughly', ex:'Approximately half of the students supported the proposal.' },
+	      { w:'primarily', ipa:'/praɪˈmerəli/', cn:'主要地', en:'mainly', ex:'The problem is primarily caused by poor planning.' },
+	      { w:'long-term', ipa:'/ˌlɔːŋ ˈtɜːrm/', cn:'长期的', en:'continuing far into the future', ex:'Education brings long-term benefits to society.' },
+	    ],
+	    Government:[
+	      { w:'policy', ipa:'/ˈpɑːləsi/', cn:'政策', en:'a plan of action used by a government or organisation', ex:'A clear policy is needed to reduce pollution.' },
+	      { w:'public sector', ipa:'/ˌpʌblɪk ˈsektər/', cn:'公共部门', en:'government-run services and organisations', ex:'The public sector provides healthcare and education.' },
+	      { w:'private sector', ipa:'/ˌpraɪvət ˈsektər/', cn:'私营部门', en:'businesses not owned by the government', ex:'The private sector can create jobs quickly.' },
+	      { w:'enforce', ipa:'/ɪnˈfɔːrs/', cn:'执行；强制实施', en:'to make people obey a rule or law', ex:'Authorities must enforce environmental regulations.' },
+	      { w:'allocate', ipa:'/ˈæləkeɪt/', cn:'分配', en:'to give resources for a particular purpose', ex:'Governments should allocate more funding to schools.' },
+	      { w:'reform', ipa:'/rɪˈfɔːrm/', cn:'改革', en:'a change made to improve a system', ex:'Healthcare reform is often politically difficult.' },
+	      { w:'welfare state', ipa:'/ˈwelfer steɪt/', cn:'福利国家', en:'a system in which government supports citizens’ welfare', ex:'A strong welfare state can reduce poverty.' },
+	      { w:'bureaucracy', ipa:'/bjʊˈrɑːkrəsi/', cn:'官僚体系', en:'a complex system of official rules and processes', ex:'Too much bureaucracy can slow down public projects.' },
+	      { w:'municipal', ipa:'/mjuːˈnɪsɪpl/', cn:'市政的', en:'relating to a town or city government', ex:'Municipal authorities manage local transport.' },
+	      { w:'incentivise', ipa:'/ɪnˈsentɪvaɪz/', cn:'激励', en:'to encourage someone to do something', ex:'Tax cuts can incentivise companies to use clean energy.' },
+	    ],
+	    Culture:[
+	      { w:'globalisation', ipa:'/ˌɡloʊbələˈzeɪʃn/', cn:'全球化', en:'the process of countries becoming more connected', ex:'Globalisation can spread both ideas and products.' },
+	      { w:'assimilation', ipa:'/əˌsɪməˈleɪʃn/', cn:'同化', en:'the process of becoming part of another culture', ex:'Some migrants face pressure toward cultural assimilation.' },
+	      { w:'diversity', ipa:'/daɪˈvɜːrsəti/', cn:'多样性', en:'the state of including many different kinds of people or things', ex:'Cultural diversity makes a city more interesting.' },
+	      { w:'ritual', ipa:'/ˈrɪtʃuəl/', cn:'仪式', en:'a traditional ceremony or repeated action', ex:'Wedding rituals vary greatly between cultures.' },
+	      { w:'craftsmanship', ipa:'/ˈkræftsmənʃɪp/', cn:'工艺；手艺', en:'skill in making things by hand', ex:'Traditional craftsmanship should be preserved.' },
+	      { w:'ancestral', ipa:'/ænˈsestrəl/', cn:'祖先的', en:'relating to people’s ancestors', ex:'Many families keep ancestral traditions alive.' },
+	      { w:'indigenous', ipa:'/ɪnˈdɪdʒənəs/', cn:'本土的；原住民的', en:'originally living or existing in a place', ex:'Indigenous languages are disappearing in some regions.' },
+	      { w:'folklore', ipa:'/ˈfoʊklɔːr/', cn:'民间传说', en:'traditional stories and beliefs of a community', ex:'Folklore helps children understand local culture.' },
+	      { w:'mainstream', ipa:'/ˈmeɪnstriːm/', cn:'主流的', en:'accepted by most people', ex:'Local music has become part of mainstream culture.' },
+	      { w:'cultural identity', ipa:'/ˌkʌltʃərəl aɪˈdentəti/', cn:'文化身份', en:'the feeling of belonging to a cultural group', ex:'Language is central to cultural identity.' },
+	    ],
+	  };
+
+  shadowBank = [
+    { title:'A morning by the sea', lines:[
+      'The sun rose slowly over the quiet harbour, turning the sky a soft shade of gold.',
+      'Fishing boats drifted out across the calm water, their engines humming gently.',
+      'A cool breeze carried the smell of salt and seaweed in from the open sea.',
+      'Gulls circled overhead, calling to one another as they searched for breakfast.',
+      'On the shore, an old man mended his nets with slow, practised hands.',
+      'A few early swimmers waded into the shallows, gasping at the cold.',
+      'By the time the market opened, the docks had become busy and loud.',
+      'Crates of silver fish were carried past, glittering in the morning light.',
+      'The smell of fresh coffee drifted from a café on the corner.',
+      'Children chased each other along the harbour wall, laughing as they ran.',
+      'For a moment, the whole town seemed to pause and breathe together.',
+      'It was, in every way, a perfect start to the day.',
+    ]},
+    { title:'Learning a new skill', lines:[
+      'Learning something new can feel surprisingly difficult at first.',
+      'In the beginning, progress is slow, and mistakes are common.',
+      'It is easy to feel discouraged when results do not come quickly.',
+      'Many people give up at this stage, convinced they have no talent.',
+      'However, talent matters far less than most of us imagine.',
+      'With regular, focused practice, almost any skill can be improved.',
+      'The real secret is to study just a little every single day.',
+      'Short sessions, repeated often, beat long sessions done rarely.',
+      'It also helps to set small, clear goals you can actually reach.',
+      'Each tiny success builds the confidence to keep going.',
+      'Over a few months, these small efforts add up to genuine skill.',
+      'So be patient with yourself, and trust the slow power of practice.',
+    ]},
+    { title:'City and countryside', lines:[
+      'Life in the city moves at a remarkable and relentless pace.',
+      'There is always something happening, whether it is day or night.',
+      'Streets are crowded, shops stay open late, and the noise never stops.',
+      'For many, this constant energy is exciting and full of opportunity.',
+      'The countryside, by contrast, offers peace, space, and clean air.',
+      'Mornings begin with birdsong rather than the roar of traffic.',
+      'People often know their neighbours and take time to talk.',
+      'Many city dwellers dream of escaping to a slower, quieter life.',
+      'Yet those who move away sometimes miss the buzz of the streets.',
+      'They miss the theatres, the restaurants, and the sense of choice.',
+      'Each way of living clearly has its own rewards and its own costs.',
+      'In the end, the best place to live depends entirely on the person.',
+    ]},
+    { title:'The value of reading', lines:[
+      'Reading quietly opens a window onto countless other worlds.',
+      'A single book can carry you across oceans and even centuries.',
+      'You can stand on a battlefield or sit in a distant kitchen.',
+      'Through stories, we come to understand lives unlike our own.',
+      'Reading also builds vocabulary almost without you noticing.',
+      'New words appear again and again until they feel familiar.',
+      'It strengthens concentration in a world full of distractions.',
+      'Above all, reading teaches us to see through other people’s eyes.',
+      'That gift of empathy may be its greatest reward of all.',
+      'Best of all, the habit costs almost nothing to begin.',
+      'Even ten quiet minutes a day can make a lasting difference.',
+      'For all these reasons, reading is a habit well worth keeping.',
+    ]},
+    { title:'A journey by train', lines:[
+      'The platform was crowded long before the train arrived.',
+      'Travellers checked their watches and shifted their heavy bags.',
+      'When the doors finally opened, everyone pressed forward at once.',
+      'I found a seat by the window and watched the city slip away.',
+      'Grey buildings soon gave way to green fields and low hills.',
+      'A river ran beside the track, flashing silver in the sun.',
+      'The steady rhythm of the wheels was strangely comforting.',
+      'An old woman opposite me fell asleep with a book in her lap.',
+      'Somewhere far ahead, the train sounded its long, low horn.',
+      'Small stations flew past, their names too quick to read.',
+      'For a few hours, there was nothing to do but watch and rest.',
+      'By dusk, the distant lights of my destination came into view.',
+    ]},
+    { title:'Why we need sleep', lines:[
+      'Sleep is one of the most important things we ever do.',
+      'Yet in busy modern life, it is often the first thing we sacrifice.',
+      'While we sleep, the brain is far from switched off.',
+      'It quietly sorts through the events and lessons of the day.',
+      'Fragile new memories are gradually made stronger and more lasting.',
+      'The body, too, repairs muscles and fights off illness.',
+      'People who sleep well tend to think more clearly and calmly.',
+      'They also find it easier to manage stress and strong emotions.',
+      'In contrast, too little sleep harms both mood and judgement.',
+      'Over time, it can even damage long-term health.',
+      'Most adults need around seven to eight hours each night.',
+      'Protecting that time may be one of the wisest choices we make.',
+    ]},
+    { title:'Speaking Part 1: daily routine', lines:[
+      'I would say my daily routine is fairly simple, but it keeps me organised.',
+      'On weekdays, I usually get up early and spend a few minutes planning my day.',
+      'After that, I either study or work for several hours, depending on my schedule.',
+      'In the evening, I try to do something relaxing, such as taking a walk or listening to music.',
+      'I do not follow the exact same routine every day, because unexpected things often happen.',
+      'However, having a basic structure helps me feel more in control.',
+      'If I have a busy morning, I tend to prepare everything the night before.',
+      'That way, I can avoid rushing and start the day in a calmer mood.',
+      'I think routines are useful, as long as they are not too strict.',
+      'A good routine should support your life, not make it feel limited.',
+    ]},
+    { title:'Speaking Part 1: hometown', lines:[
+      'My hometown is a medium-sized city, so it is neither too crowded nor too quiet.',
+      'What I like most about it is that daily life feels convenient.',
+      'There are plenty of shops, parks and restaurants within a short distance.',
+      'At the same time, it has changed quite a lot over the past few years.',
+      'New buildings have appeared, and the public transport system has improved.',
+      'Some older streets have lost a little of their character, which is a pity.',
+      'But overall, I still feel quite attached to the place.',
+      'It is where I grew up, so many of my memories are connected with it.',
+      'If a visitor came for one day, I would probably take them to the old town first.',
+      'It gives a better sense of the local history and atmosphere.',
+    ]},
+    { title:'Speaking Part 2: a useful app', lines:[
+      'I would like to talk about a language-learning app that I use almost every day.',
+      'I first downloaded it because I wanted to improve my vocabulary in a more systematic way.',
+      'The app is very practical, because it gives me short exercises that I can finish quickly.',
+      'For example, I can review ten words while waiting for a bus or during a lunch break.',
+      'One feature I especially like is the spaced repetition system.',
+      'It shows difficult words more often, so I do not forget them as easily.',
+      'At first, I only used it casually, but gradually it became part of my routine.',
+      'I think it is useful because it turns small pockets of time into learning opportunities.',
+      'It also gives me a sense of progress, which keeps me motivated.',
+      'Overall, it is a simple tool, but it has made my study habits much more consistent.',
+    ]},
+    { title:'Speaking Part 2: a person you admire', lines:[
+      'I would like to describe a teacher who had a strong influence on me.',
+      'She taught me English at school, but what impressed me most was her patience.',
+      'Whenever students made mistakes, she corrected us gently instead of making us feel embarrassed.',
+      'She also encouraged us to express our own opinions, not just memorise answers.',
+      'At that time, I was not very confident about speaking in front of others.',
+      'She gave me small chances to practise, and gradually I became less nervous.',
+      'What I admire about her is that she treated every student as capable of improving.',
+      'That attitude made the classroom feel safe and positive.',
+      'Even now, when I face a difficult task, I remember her advice to take it step by step.',
+      'For that reason, I would say she changed not only my English, but also my confidence.',
+    ]},
+    { title:'Speaking Part 2: a memorable journey', lines:[
+      'One journey I still remember clearly was a short trip to a coastal town.',
+      'I went there with two close friends during a school holiday.',
+      'The journey itself was not luxurious, but it felt exciting because we planned it ourselves.',
+      'We took an early train and watched the city slowly disappear behind us.',
+      'When we arrived, the first thing we did was walk straight to the beach.',
+      'The weather was windy, and the sea looked much wilder than I had expected.',
+      'In the afternoon, we explored small streets and tried some local food.',
+      'Nothing dramatic happened, but the whole day felt free and refreshing.',
+      'I think the trip was memorable because it came at a stressful time in my life.',
+      'It reminded me that even a simple journey can completely change your mood.',
+    ]},
+    { title:'Speaking Part 3: technology and society', lines:[
+      'Technology has changed society in many positive ways, but it also creates new problems.',
+      'On the positive side, it makes communication faster and information more accessible.',
+      'People can study online, work remotely and keep in touch with family across long distances.',
+      'However, there is also a risk that people become too dependent on their devices.',
+      'For example, some people find it difficult to concentrate without checking their phones.',
+      'I think the key issue is not whether technology is good or bad.',
+      'The more important question is how wisely people choose to use it.',
+      'Schools and parents should teach children digital habits, not simply give them devices.',
+      'In the future, technology will probably become even more powerful and personal.',
+      'That makes responsible use more important than ever.',
+    ]},
+    { title:'Speaking Part 3: education choices', lines:[
+      'Education should prepare students for both employment and personal development.',
+      'Some people believe schools should focus mainly on practical skills.',
+      'That view makes sense, because young people need to find jobs and support themselves.',
+      'However, I do not think education should be reduced to job training.',
+      'Subjects like literature, history and art help students understand people and society.',
+      'They also develop imagination, communication and critical thinking.',
+      'In my opinion, the best education system offers a balance.',
+      'Students need basic academic knowledge, but they also need opportunities to explore their interests.',
+      'If schools only teach what is immediately useful, learning becomes narrow.',
+      'A broader curriculum can make students more adaptable in the long run.',
+    ]},
+    { title:'Speaking Part 3: cities and environment', lines:[
+      'Large cities need to grow, but they also need to protect the environment.',
+      'One major problem is that urban development often removes green spaces.',
+      'When parks and trees disappear, residents lose places to relax and exercise.',
+      'Air quality can also become worse if too many people rely on private cars.',
+      'Governments can deal with this by improving public transport and building cycling lanes.',
+      'They can also require new buildings to meet higher environmental standards.',
+      'Of course, individuals have a role to play as well.',
+      'People can use less energy, recycle more and choose public transport when possible.',
+      'Still, the biggest changes usually depend on strong planning and investment.',
+      'So I would say environmental protection is a shared responsibility.',
+    ]},
+    { title:'Speaking repair phrases', lines:[
+      'Let me put that another way.',
+      'What I mean is that the benefits are not always obvious at first.',
+      'I have not thought about that in detail, but I would say it depends on the situation.',
+      'That is a difficult question, because there are several sides to it.',
+      'I suppose the main reason is convenience.',
+      'A good example of this would be online learning.',
+      'Compared with the past, people now have far more choices.',
+      'At the same time, we should not ignore the possible disadvantages.',
+      'So, to answer the question directly, I think the advantages are stronger.',
+      'Overall, my view is that balance is more important than extremes.',
+    ]},
+    { title:'Speaking fluency connectors', lines:[
+      'To be honest, I had not really noticed that before.',
+      'Generally speaking, I prefer places that are quiet and comfortable.',
+      'In most cases, people choose convenience over quality.',
+      'From my point of view, the answer depends on age and lifestyle.',
+      'One thing I should mention is that habits can change over time.',
+      'Another reason is that people are influenced by their friends and family.',
+      'This is especially true for young people, who spend a lot of time online.',
+      'On the other hand, older people may see the issue differently.',
+      'If I compare it with my parents’ generation, the difference is quite clear.',
+      'That is why I think the topic is more complicated than it first appears.',
+    ]},
+    { title:'Speaking Part 1: studies and work', lines:[
+      'At the moment, I am mainly focused on improving my English and study habits.',
+      'What I enjoy most is seeing small improvements from one week to the next.',
+      'Some parts are challenging, especially speaking under time pressure.',
+      'However, I think pressure is useful because it makes practice feel more realistic.',
+      'If I could change one thing about my routine, I would make it more consistent.',
+      'For example, I would set aside a fixed hour every evening for review.',
+      'I usually learn better when I combine reading, listening and speaking together.',
+      'That way, new vocabulary does not stay only on the page.',
+      'In the future, I hope these habits will help me communicate more confidently.',
+      'For me, language learning is not just an exam task, but a practical life skill.',
+    ]},
+    { title:'Speaking Part 2: a difficult decision', lines:[
+      'I would like to describe a difficult decision I made about my study plan.',
+      'I had to decide whether to continue studying alone or join a structured course.',
+      'At first, I thought self-study would be enough because it was flexible and cheap.',
+      'But after a while, I realised I was repeating the same mistakes.',
+      'I asked a friend for advice, and she suggested getting more regular feedback.',
+      'In the end, I chose a course that focused mainly on speaking and writing.',
+      'The decision was difficult because it required both time and money.',
+      'However, it helped me become more disciplined and aware of my weaknesses.',
+      'Looking back, I think the most important lesson was to be honest about what I needed.',
+      'Sometimes the best decision is not the easiest one, but the one that moves you forward.',
+    ]},
+    { title:'Speaking Part 3: work-life balance', lines:[
+      'Work-life balance has become a serious issue in many modern societies.',
+      'One reason is that technology makes it harder to switch off after work.',
+      'People can receive messages late at night and feel they must reply immediately.',
+      'In my opinion, employers should respect personal time more clearly.',
+      'At the same time, employees also need to set healthy boundaries.',
+      'For instance, they can avoid checking work messages during meals or before sleep.',
+      'A balanced lifestyle is not only good for individuals, but also for companies.',
+      'People who rest properly are usually more creative, focused and productive.',
+      'Of course, some jobs require flexibility, especially in emergencies.',
+      'But as a general rule, long-term performance depends on sustainable routines.',
+    ]},
+    { title:'Speaking Part 3: giving examples', lines:[
+      'A clear example can make an opinion much easier to understand.',
+      'Instead of giving a very general answer, I try to mention a real situation.',
+      'For instance, if the topic is transport, I might talk about my daily commute.',
+      'If the question is about technology, I can refer to online learning or mobile payments.',
+      'The example does not need to be dramatic or unusual.',
+      'It simply needs to connect naturally with the point I am making.',
+      'I also try not to spend too long telling the story.',
+      'A short example is usually enough to support the answer.',
+      'After giving the example, I return to the main idea and explain why it matters.',
+      'This makes the answer sound organised, personal and easy to follow.',
+    ]},
+  ];
+
+  shadowZhBank = [
+    ['太阳缓缓升上海港上空，把天空染成柔和的金色。','渔船驶向平静的水面，发动机轻轻地嗡鸣。','一阵凉风把盐和海草的味道从外海带来。','海鸥在头顶盘旋，互相鸣叫着寻找早餐。','岸边，一位老人用熟练而缓慢的手势修补渔网。','几个早起游泳的人走进浅水区，被冷水激得吸气。','等到市场开门时，码头已经变得忙碌又嘈杂。','一箱箱银色的鱼被搬过，晨光里闪闪发亮。','新鲜咖啡的香味从街角的咖啡馆飘来。','孩子们沿着港湾墙追逐，边跑边笑。','有那么一刻，整座小镇仿佛一起停下来呼吸。','无论从哪方面看，这都是一天完美的开始。'],
+    ['学习新东西一开始会出乎意料地困难。','刚开始时，进步很慢，犯错也很常见。','当结果没有很快出现时，人很容易灰心。','很多人在这个阶段放弃，以为自己没有天赋。','然而，天赋并没有我们想象的那么重要。','只要定期、专注地练习，几乎任何技能都可以提高。','真正的秘诀是每天只学一点点。','经常重复的短练习，比偶尔一次的长练习更有效。','设定小而清晰、真正能完成的目标也很有帮助。','每一次小成功都会建立继续下去的信心。','几个月后，这些小努力会累积成真正的能力。','所以要对自己有耐心，相信练习缓慢但强大的力量。'],
+    ['城市生活以惊人且不间断的节奏前进。','无论白天还是夜晚，总有事情在发生。','街道拥挤，商店开到很晚，噪音从不停歇。','对很多人来说，这种持续的活力令人兴奋，也充满机会。','相比之下，乡村提供宁静、空间和清新的空气。','清晨从鸟鸣开始，而不是从交通噪声开始。','人们往往认识邻居，也愿意花时间交谈。','许多城市居民梦想逃到更慢、更安静的生活。','但真正搬走的人有时又会想念街头的热闹。','他们会想念剧院、餐馆和丰富选择带来的感觉。','每一种生活方式显然都有自己的收获和代价。','最终，最适合居住的地方完全取决于个人。'],
+    ['安静地阅读像是打开一扇通往无数世界的窗。','一本书就能带你跨越海洋，甚至穿过几个世纪。','你可以站在战场上，也可以坐在远方的厨房里。','通过故事，我们开始理解和自己不同的人生。','阅读也会在你几乎没有察觉时积累词汇。','新词一次又一次出现，直到变得熟悉。','在充满干扰的世界里，它还能增强专注力。','最重要的是，阅读教我们用别人的眼睛看世界。','这种共情的礼物也许是阅读最大的回报。','最好的是，开始这个习惯几乎不需要成本。','每天哪怕安静读十分钟，也能带来持久变化。','基于这些原因，阅读是一个非常值得保持的习惯。'],
+    ['火车到站前很久，站台就已经挤满了人。','旅客们看着手表，挪动着沉重的行李。','车门终于打开时，所有人一下子向前挤去。','我找了一个靠窗的座位，看着城市慢慢远去。','灰色建筑很快变成绿色田野和低矮山丘。','一条河沿着铁轨流淌，在阳光下闪着银光。','车轮稳定的节奏让人莫名安心。','我对面的一位老太太把书放在腿上睡着了。','远处某个地方，火车发出低沉而悠长的鸣笛。','小站飞快掠过，站名快得来不及看清。','有几个小时，除了观看和休息，什么都不必做。','黄昏时，我目的地远处的灯光出现在视野里。'],
+    ['睡眠是我们所做的最重要的事情之一。','但在忙碌的现代生活中，它往往是我们最先牺牲的东西。','睡觉时，大脑远远不是完全关闭的。','它会安静地整理一天中的事件和学习内容。','脆弱的新记忆会逐渐变得更牢固、更持久。','身体也会修复肌肉并抵抗疾病。','睡得好的人通常思考更清晰，也更平静。','他们也更容易管理压力和强烈情绪。','相反，睡眠太少会伤害情绪和判断力。','久而久之，它甚至会损害长期健康。','大多数成年人每晚需要大约七到八小时睡眠。','保护这段时间也许是我们能做的最明智选择之一。'],
+    ['我会说我的日常安排相当简单，但它让我保持有条理。','工作日我通常早起，花几分钟规划当天。','之后我会学习或工作几个小时，取决于我的安排。','晚上我尽量做些放松的事，比如散步或听音乐。','我并不是每天都完全遵循同样的日程，因为常会有意外情况。','不过，有一个基本结构会让我感觉更有掌控感。','如果早上很忙，我往往前一天晚上就准备好所有东西。','这样我就能避免匆忙，并以更平静的心情开始一天。','我认为日常安排是有用的，只要它不过于严格。','好的日程应该支持你的生活，而不是让生活感到受限。'],
+    ['我的家乡是一座中等规模的城市，所以既不太拥挤，也不太安静。','我最喜欢的一点是，日常生活很方便。','短距离内就有很多商店、公园和餐馆。','与此同时，过去几年它也发生了很大变化。','新的建筑出现了，公共交通系统也改善了。','一些老街失去了一点原来的特色，这有些可惜。','但总体来说，我仍然很依恋这个地方。','这是我长大的地方，所以我的许多回忆都与它有关。','如果有游客来一天，我可能会先带他们去老城区。','那里更能体现当地的历史和氛围。'],
+    ['我想谈谈一个我几乎每天都会用的语言学习应用。','我最初下载它，是因为想用更系统的方式提高词汇量。','这个应用非常实用，因为它给我一些可以很快完成的短练习。','例如，我可以在等公交或午休时复习十个单词。','我特别喜欢的一个功能是间隔重复系统。','它会更频繁地显示难词，所以我不那么容易忘记。','一开始我只是随便用用，但后来它逐渐成了我的日常习惯。','我觉得它有用，是因为它把零碎时间变成了学习机会。','它也给我一种进步感，这让我保持动力。','总的来说，它是一个简单的工具，但让我的学习习惯稳定了很多。'],
+    ['我想描述一位对我影响很大的老师。','她在学校教我英语，但最让我印象深刻的是她的耐心。','每当学生犯错时，她会温和地纠正我们，而不是让我们尴尬。','她还鼓励我们表达自己的观点，而不是只背答案。','那时我在别人面前讲话并不自信。','她给我一些小机会练习，我也逐渐没那么紧张了。','我欣赏她的一点是，她相信每个学生都有能力进步。','这种态度让课堂感觉安全而积极。','即使现在，当我面对困难任务时，我也会想起她让我一步一步来的建议。','因此我会说，她改变的不只是我的英语，也改变了我的自信。'],
+    ['我仍然清楚记得的一次旅行，是去一座海滨小镇的短途旅行。','我是在学校假期和两个好朋友一起去的。','旅程本身并不豪华，但因为是我们自己计划的，所以很兴奋。','我们坐了早班火车，看着城市慢慢消失在身后。','到达后，我们做的第一件事就是直接走向海滩。','天气有风，海看起来比我预想的更狂野。','下午，我们探索了小街，也尝了一些当地食物。','没有发生什么戏剧性的事，但整天都让人感到自由又清爽。','我觉得这次旅行难忘，是因为它发生在我生活中压力很大的时期。','它提醒我，即使一次简单的旅行也能彻底改变心情。'],
+    ['科技以许多积极方式改变了社会，但也带来了新问题。','积极的一面是，它让沟通更快，信息更容易获取。','人们可以在线学习、远程工作，并和远方的家人保持联系。','然而，人们也有可能过度依赖自己的设备。','例如，有些人不看手机就很难集中注意力。','我认为关键问题并不是科技到底好还是坏。','更重要的问题是人们如何明智地使用它。','学校和家长应该教孩子数字习惯，而不是简单地把设备交给他们。','未来，科技可能会变得更强大也更私人化。','这让负责任的使用变得比以往任何时候都更重要。'],
+    ['教育应该让学生既为就业做好准备，也促进个人发展。','有些人认为学校应该主要关注实用技能。','这种观点有道理，因为年轻人需要找工作并养活自己。','不过，我不认为教育应该被简化成职业培训。','文学、历史和艺术等科目帮助学生理解人和社会。','它们也培养想象力、沟通能力和批判性思维。','在我看来，最好的教育体系会提供一种平衡。','学生需要基础学术知识，也需要机会探索自己的兴趣。','如果学校只教立刻有用的东西，学习就会变得狭窄。','更广泛的课程从长远看能让学生更有适应力。'],
+    ['大城市需要发展，但也需要保护环境。','一个主要问题是，城市开发常常会减少绿地。','当公园和树木消失时，居民会失去放松和锻炼的地方。','如果太多人依赖私家车，空气质量也会变差。','政府可以通过改善公共交通和建设自行车道来应对这个问题。','他们也可以要求新建筑达到更高的环保标准。','当然，个人也有责任。','人们可以少用能源、多回收，并尽可能选择公共交通。','不过，最大的改变通常依赖强有力的规划和投资。','所以我会说，环境保护是一种共同责任。'],
+    ['让我换一种说法。','我的意思是，好处一开始并不总是明显。','我没有详细想过这个问题，但我会说这取决于具体情况。','这是一个困难的问题，因为它有好几个方面。','我想主要原因是方便。','在线学习就是一个很好的例子。','和过去相比，人们现在有多得多的选择。','与此同时，我们也不应该忽视可能的缺点。','所以，直接回答这个问题的话，我认为优点更强。','总的来说，我的观点是，平衡比极端更重要。'],
+    ['说实话，我以前并没有真正注意到这一点。','一般来说，我更喜欢安静舒适的地方。','在大多数情况下，人们会选择方便而不是质量。','从我的角度看，答案取决于年龄和生活方式。','我应该提到的一点是，习惯会随着时间改变。','另一个原因是，人们会受到朋友和家人的影响。','这一点对年轻人尤其如此，因为他们花很多时间上网。','另一方面，年长的人可能会以不同方式看待这个问题。','如果和我父母那一代相比，差别就非常明显。','这就是为什么我认为这个话题比一开始看起来更复杂。'],
+    ['目前，我主要专注于提高英语和学习习惯。','我最享受的是看到自己一周比一周有小进步。','有些部分很有挑战，尤其是在时间压力下说英语。','不过，我认为压力是有用的，因为它让练习更接近真实考试。','如果能改变我的日程中的一点，我会让它更稳定。','例如，我会每天晚上留出固定一小时来复习。','我通常在把阅读、听力和口语结合起来时学得更好。','这样，新词汇就不会只停留在纸面上。','将来，我希望这些习惯能帮助我更自信地交流。','对我来说，语言学习不只是考试任务，而是一项实用的生活技能。'],
+    ['我想描述一个关于学习计划的困难决定。','我必须决定是继续自学，还是参加一个有结构的课程。','一开始，我以为自学就够了，因为它灵活又便宜。','但过了一段时间，我意识到自己一直在重复同样的错误。','我向一位朋友寻求建议，她建议我获得更规律的反馈。','最后，我选择了一门主要关注口语和写作的课程。','这个决定很难，因为它需要时间和金钱。','不过，它帮助我变得更自律，也更清楚自己的弱点。','回头看，我认为最重要的经验是诚实面对自己的需要。','有时候，最好的决定不是最容易的决定，而是能推动你前进的决定。'],
+    ['工作与生活的平衡已经成为许多现代社会中的严重问题。','一个原因是，科技让人们下班后更难完全关掉工作状态。','人们可能深夜收到消息，并觉得必须马上回复。','在我看来，雇主应该更清楚地尊重私人时间。','与此同时，员工也需要设定健康的边界。','例如，他们可以避免在吃饭时或睡前查看工作消息。','平衡的生活方式不仅对个人有益，对公司也有益。','休息充分的人通常更有创造力、更专注，也更高效。','当然，有些工作需要灵活性，尤其是在紧急情况下。','但一般来说，长期表现取决于可持续的日常安排。'],
+    ['清晰的例子可以让观点更容易理解。','我会尽量提到真实情境，而不是给出非常笼统的回答。','例如，如果话题是交通，我可能会谈我的日常通勤。','如果问题关于科技，我可以提到在线学习或移动支付。','例子不需要戏剧化或特别罕见。','它只需要自然地连接到我正在表达的观点。','我也尽量不要花太长时间讲故事。','一个简短的例子通常足以支持答案。','举完例子后，我会回到主要观点并解释它为什么重要。','这会让答案听起来有条理、有个人色彩，也容易跟上。'],
+  ];
+
+	  vocabExpanded = this.expandVocab();
+	  planData = this.buildPlan();
+  totalTasks = this.planData.reduce((sum, wk) => sum + wk.days.reduce((s2, d) => s2 + d.tasks.length, 0), 0);
+
+	  state = (() => {
+	    const s = {
+	      planVersion:'tingzhang-plan-v3',
+	      lSet:0, lPlaying:false, lAnswers:{}, lSubmitted:false, lTranscript:false,
+	      rSet:0, rAnswers:{}, rSubmitted:false,
+		      wSet:0, wText:'', wStarted:false, wLeft:40*60, wModel:false,
+	      sSet:0, sPhase:'idle', sLeft:0, sRecording:false, sAudio:null, sMicError:'',
+	      vSet:0, vIndex:0, vFlipped:false, vMastered:{}, voiceMode:'uk',
+	      shSet:0, shIndex:0, shPlaying:false, shRecording:false, shAudio:null, shMicError:'',
+      planStart:null, done:{}, weekView:null,
+    };
+	    try {
+	      const raw = localStorage.getItem('prismIelts.v1');
+	      if (raw) {
+	        const p = JSON.parse(raw);
+	        const samePlan = p.planVersion === s.planVersion;
+		        ['lSet','rSet','wSet','sSet','vSet','vMastered','shSet','voiceMode'].forEach(k => { if (p[k] !== undefined && p[k] !== null) s[k] = p[k]; });
+		        if (samePlan) {
+		          ['planStart','done','weekView'].forEach(k => { if (p[k] !== undefined && p[k] !== null) s[k] = p[k]; });
+		        }
+	      }
+	    } catch (e) {}
+    if (!s.planStart) { const d = new Date(); d.setHours(0,0,0,0); s.planStart = d.getTime(); }
+	    const day = Math.floor((Date.now() - s.planStart) / 86400000);
+	    s.weekView = Math.min(11, Math.max(0, Math.floor(day / 7)));
+	    return s;
+	  })();
+
+	  buildPlan() {
+	    const nL = this.listeningBank.length, nR = this.readingBank.length, nW = this.writingBank.length, nS = this.speakingBank.length, nV = this.vocabBank.length, nSh = this.shadowBank.length;
+	    const phases = [
+	      { n:'Foundations', from:'5.5', to:'6.0', blurb:'Learn every question type and build a core of high-frequency vocabulary.' },
+	      { n:'Fluency', from:'6.0', to:'6.5', blurb:'Push speed and accuracy; widen your spoken and written range.' },
+	      { n:'Exam mastery', from:'6.5', to:'7.0', blurb:'Full timed practice under exam conditions, polishing weak spots.' },
+	    ];
+	    const shorten = (text, max) => text.length > max ? text.slice(0, max - 1).trim() + '…' : text;
+	    const T = (label, detail, skill, setIndex) => ({ label, detail, skill, setIndex });
+	    const L = (i) => T('Listening · Set '+(i+1), this.listeningBank[i].title, 'listening', i);
+	    const R = (i) => T('Reading · Passage '+(i+1), this.readingBank[i].title, 'reading', i);
+	    const W = (i) => T('Writing · Prompt '+(i+1), shorten(this.writingBank[i].prompt, 58), 'writing', i);
+	    const S = (i) => T('Speaking · Card '+(i+1), this.speakingBank[i].title, 'speaking', i);
+	    const V = (i) => T('Vocabulary · '+this.vocabBank[i].name, this.vocabBank[i].words.length+' IELTS words', 'vocab', i);
+	    const SH = (i) => T('Shadow · Script '+(i+1), this.shadowBank[i].title, 'shadow', i);
+	    const weeks = [];
+	    for (let w = 0; w < 12; w++) {
+	      const ph = phases[Math.floor(w / 4)];
+	      const days = [];
+	      for (let d = 0; d < 7; d++) {
+	        const dayNum = w * 7 + d + 1;
+	        const base = dayNum - 1;
+	        const li = base % nL, ri = base % nR, wi = base % nW, si = base % nS, vi = base % nV, shi = base % nSh;
+	        let theme, tasks;
+	        if (d === 0) { theme='Listening'; tasks=[ L(li), V(vi), SH(shi) ]; }
+	        else if (d === 1) { theme='Reading'; tasks=[ R(ri), V((vi+1)%nV), SH((shi+1)%nSh) ]; }
+	        else if (d === 2) { theme='Writing'; tasks=[ W(wi), V((vi+2)%nV), SH((shi+2)%nSh) ]; }
+	        else if (d === 3) { theme='Speaking'; tasks=[ S(si), SH((shi+3)%nSh), V((vi+3)%nV) ]; }
+	        else if (d === 4) { theme='Listening + Reading'; tasks=[ L((li+1)%nL), R((ri+1)%nR), V((vi+4)%nV) ]; }
+	        else if (d === 5) { theme='Mini mock'; tasks=[ L((li+2)%nL), R((ri+2)%nR), W((wi+1)%nW), S((si+1)%nS) ]; }
+	        else { theme='Review & reset'; tasks=[ V((vi+5)%nV), SH((shi+4)%nSh), W((wi+2)%nW), S((si+2)%nS) ]; }
+	        days.push({ dayNum, theme, tasks });
+	      }
+	      weeks.push({ phaseName:ph.n, phaseFrom:ph.from, phaseTo:ph.to, blurb:ph.blurb, days });
+    }
+    return weeks;
+  }
+
+  componentDidUpdate() { this.persist(); }
+	  persist() {
+	    try {
+		      const { planVersion, planStart, done, weekView, lSet, rSet, wSet, sSet, vSet, vMastered, shSet, voiceMode } = this.state;
+		      localStorage.setItem('prismIelts.v1', JSON.stringify({ planVersion, planStart, done, weekView, lSet, rSet, wSet, sSet, vSet, vMastered, shSet, voiceMode }));
+	    } catch (e) {}
+	  }
+
+	  componentWillUnmount() {
+	    clearInterval(this.wTimer);
+	    clearInterval(this.sTimer);
+	    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+	    this.stopShadowPlayback();
+	    this.stopRecording();
+	    this.stopShadowRec();
+  }
+
+	  scrollTo(id) {
+	    const el = document.getElementById(id);
+	    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 16, behavior: 'smooth' });
+	  }
+	  fmt(s) { const m = Math.floor(s / 60), sec = s % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
+	  planDateLabel(ms) {
+	    const d = new Date(ms);
+	    const y = d.getFullYear();
+	    const m = String(d.getMonth() + 1).padStart(2, '0');
+	    const day = String(d.getDate()).padStart(2, '0');
+	    return y + '-' + m + '-' + day;
+	  }
+
+	  // ---------- plan ----------
+	  toggleTask = (key) => this.setState(s => ({ done: { ...s.done, [key]: !s.done[key] } }));
+	  resetPlan = () => { const d = new Date(); d.setHours(0,0,0,0); this.setState({ planVersion:'tingzhang-plan-v3', planStart: d.getTime(), done: {}, weekView: 0 }); };
+	  setWeek = (i) => this.setState({ weekView: i });
+	  goTodayWeek = () => {
+	    const today = Math.min(84, Math.max(1, Math.floor((Date.now() - this.state.planStart) / 86400000) + 1));
+	    this.setState({ weekView: Math.min(11, Math.max(0, Math.floor((today - 1) / 7))) });
+	  };
+  activateSet = (skill, idx) => {
+    if (skill === 'listening') this.setL(idx);
+    else if (skill === 'reading') this.setR(idx);
+    else if (skill === 'writing') this.setW(idx);
+    else if (skill === 'speaking') this.setS(idx);
+    else if (skill === 'vocab') this.setV(idx || 0);
+    else if (skill === 'shadow') this.setSh(idx || 0);
+    this.scrollTo(skill);
+  };
+
+  // ---------- set switching ----------
+  setL = (i) => { const n = this.listeningBank.length; i = ((i % n) + n) % n; try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} this.setState({ lSet: i, lAnswers: {}, lSubmitted: false, lPlaying: false }); };
+  setR = (i) => { const n = this.readingBank.length; i = ((i % n) + n) % n; this.setState({ rSet: i, rAnswers: {}, rSubmitted: false }); };
+  setW = (i) => { const n = this.writingBank.length; i = ((i % n) + n) % n; this.setState({ wSet: i, wModel: false }); };
+  setS = (i) => { const n = this.speakingBank.length; i = ((i % n) + n) % n; clearInterval(this.sTimer); this.stopRecording(); this.setState({ sSet: i, sPhase: 'idle', sLeft: 0, sAudio: null, sRecording: false, sMicError: '' }); };
+
+  // ---------- listening ----------
+  playMonologue = () => {
+    const text = this.listeningBank[this.state.lSet].transcript;
+    if (!window.speechSynthesis) { this.setState({ lTranscript: true }); return; }
+    if (this.state.lPlaying) { window.speechSynthesis.cancel(); this.setState({ lPlaying: false }); return; }
+    this.speakWithBestVoice(text, 0.86, () => this.setState({ lPlaying: false }), () => this.setState({ lPlaying: false }));
+    this.setState({ lPlaying: true });
+  };
+  selectL = (qi, oi) => { if (this.state.lSubmitted) return; this.setState(s => ({ lAnswers: { ...s.lAnswers, [qi]: oi } })); };
+  submitL = () => this.setState({ lSubmitted: true });
+  resetL = () => this.setState({ lAnswers: {}, lSubmitted: false });
+
+  // ---------- reading ----------
+  selectR = (qi, val) => { if (this.state.rSubmitted) return; this.setState(s => ({ rAnswers: { ...s.rAnswers, [qi]: val } })); };
+  submitR = () => this.setState({ rSubmitted: true });
+  resetR = () => this.setState({ rAnswers: {}, rSubmitted: false });
+
+  // ---------- writing ----------
+  startW = () => {
+    if (this.state.wStarted) return;
+    this.setState({ wStarted: true });
+    this.wTimer = setInterval(() => {
+      this.setState(s => { if (s.wLeft <= 1) { clearInterval(this.wTimer); return { wLeft: 0 }; } return { wLeft: s.wLeft - 1 }; });
+    }, 1000);
+  };
+  changeW = (e) => this.setState({ wText: e.target.value });
+  toggleModel = () => this.setState(s => ({ wModel: !s.wModel }));
+
+  // ---------- speaking ----------
+  tickSpeak() {
+    this.setState(s => {
+      if (s.sLeft <= 1) {
+        if (s.sPhase === 'prep') { this.startRecording(); return { sPhase: 'speak', sLeft: 120 }; }
+        if (s.sPhase === 'speak') { clearInterval(this.sTimer); this.stopRecording(); return { sPhase: 'done', sLeft: 0 }; }
+      }
+      return { sLeft: s.sLeft - 1 };
+    });
+  }
+  startSpeak = () => { clearInterval(this.sTimer); this.setState({ sPhase: 'prep', sLeft: 60, sAudio: null, sMicError: '' }); this.sTimer = setInterval(() => this.tickSpeak(), 1000); };
+  skipToSpeak = () => { if (this.state.sPhase !== 'prep') return; this.startRecording(); this.setState({ sPhase: 'speak', sLeft: 120 }); };
+  stopSpeak = () => { clearInterval(this.sTimer); this.stopRecording(); this.setState({ sPhase: 'done' }); };
+  resetSpeak = () => { clearInterval(this.sTimer); this.stopRecording(); this.setState({ sPhase: 'idle', sLeft: 0, sAudio: null, sRecording: false, sMicError: '' }); };
+
+  async startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.chunks = [];
+      this.rec = new MediaRecorder(stream);
+      this.rec.ondataavailable = (e) => { if (e.data && e.data.size) this.chunks.push(e.data); };
+      this.rec.onstop = () => {
+        const blob = new Blob(this.chunks, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        this.setState({ sAudio: url, sRecording: false });
+        stream.getTracks().forEach(t => t.stop());
+      };
+      this.rec.start();
+      this.setState({ sRecording: true });
+    } catch (err) {
+      this.setState({ sMicError: 'Microphone unavailable — speak out loud and use the timer to keep pace.' });
+    }
+  }
+  stopRecording() { try { if (this.rec && this.rec.state !== 'inactive') this.rec.stop(); } catch (e) {} }
+
+  componentDidMount() { this.loadVoices(); }
+
+  loadVoices() {
+    try {
+      if (!window.speechSynthesis) return;
+      this.voiceCache = window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => { this.voiceCache = window.speechSynthesis.getVoices(); };
+    } catch (e) {}
+  }
+
+	  setVoiceMode = (mode) => {
+	    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+	    this.stopShadowPlayback();
+	    this.setState({ voiceMode: mode });
+	  };
+
+	  bestEnglishVoice(mode) {
+	    try {
+	      const voices = (window.speechSynthesis && window.speechSynthesis.getVoices && window.speechSynthesis.getVoices()) || this.voiceCache || [];
+	      const english = voices.filter(v => /^en[-_]/i.test(v.lang || ''));
+	      if (!english.length) return null;
+	      const m = mode || this.state.voiceMode || 'uk';
+	      const preferredByMode = {
+	        uk: ['Daniel', 'Oliver', 'Arthur', 'George', 'Ryan', 'Serena', 'Kate', 'Google UK English Male', 'Google UK English Female', 'Microsoft Ryan', 'Microsoft Sonia', 'Microsoft Libby'],
+	        us: ['Samantha', 'Alex', 'Ava', 'Allison', 'Susan', 'Tom', 'Fred', 'Google US English', 'Microsoft Aria', 'Microsoft Guy', 'Microsoft Jenny', 'Microsoft Davis'],
+	        presenter: ['Daniel', 'Alex', 'Tom', 'Fred', 'Google UK English Male', 'Google US English', 'Microsoft Guy', 'Microsoft Davis', 'Microsoft Ryan', 'Oliver', 'Arthur', 'George']
+	      };
+	      const preferred = preferredByMode[m] || preferredByMode.uk;
+	      const score = (v) => {
+	        const name = v.name || '';
+	        const lang = v.lang || '';
+	        let s = 0;
+	        preferred.forEach((p, i) => { if (name.toLowerCase().includes(p.toLowerCase())) s += 100 - i; });
+	        if (m === 'uk' && /en-GB/i.test(lang)) s += 40;
+	        if (m === 'uk' && /en-US/i.test(lang)) s -= 8;
+	        if ((m === 'us' || m === 'presenter') && /en-US/i.test(lang)) s += 38;
+	        if ((m === 'us' || m === 'presenter') && /en-GB/i.test(lang)) s += m === 'presenter' ? 10 : -8;
+	        if (v.localService) s += 8;
+	        if (/premium|enhanced|natural|neural/i.test(name)) s += 20;
+	        if (m === 'presenter' && /male|daniel|alex|tom|fred|guy|davis|ryan|oliver|arthur|george/i.test(name)) s += 28;
+	        if (m === 'presenter' && /female|samantha|ava|allison|susan|jenny|aria|serena|kate|sonia|libby/i.test(name)) s -= 12;
+	        if (/compact|novelty|whisper|bells|bad news|good news/i.test(name)) s -= 80;
+	        return s;
+	      };
+	      return english.sort((a, b) => score(b) - score(a))[0] || english[0];
+	    } catch (e) { return null; }
+	  }
+
+	  makeUtterance(text, rate, mode) {
+	    const u = new SpeechSynthesisUtterance(text);
+	    const m = mode || this.state.voiceMode || 'uk';
+	    const voice = this.bestEnglishVoice(m);
+	    if (voice) {
+	      u.voice = voice;
+	      u.lang = voice.lang || (m === 'uk' ? 'en-GB' : 'en-US');
+	    } else {
+	      u.lang = m === 'uk' ? 'en-GB' : 'en-US';
+	    }
+	    u.rate = rate || 0.86;
+	    u.pitch = m === 'presenter' ? 0.93 : 1.03;
+	    u.volume = 1;
+	    return u;
+	  }
+
+	  speakWithBestVoice(text, rate, onEnd, onError, mode) {
+	    try {
+	      if (!window.speechSynthesis) return;
+	      const play = () => {
+	        const u = this.makeUtterance(text, rate, mode);
+	        if (onEnd) u.onend = onEnd;
+	        if (onError) u.onerror = onError;
+	        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      };
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      if (!voices || voices.length === 0) {
+        this.loadVoices();
+        setTimeout(play, 180);
+      } else {
+        play();
+      }
+    } catch (e) {
+      if (onError) onError(e);
+    }
+  }
+
+	  speakText(text, rate, mode) {
+	    try {
+	      if (!window.speechSynthesis) return;
+	      this.loadVoices();
+	      this.speakWithBestVoice(text, rate || 0.82, null, null, mode);
+	    } catch (e) {}
+	  }
+
+	  // ---------- vocabulary ----------
+		  expandVocab() {
+		    this.vocabBank.forEach(deck => {
+		      const extra = this.extraVocabBank[deck.name] || [];
+		      const existing = new Set(deck.words.map(w => w.w));
+		      extra.forEach(word => { if (!existing.has(word.w)) deck.words.push(word); });
+		    });
+		    return true;
+		  }
+	  setV = (i) => { const n = this.vocabBank.length; i = ((i % n) + n) % n; this.setState({ vSet: i, vIndex: 0, vFlipped: false }); };
+	  flipCard = () => this.setState(s => ({ vFlipped: !s.vFlipped }));
+	  speakWord = (e) => {
+	    if (e && e.stopPropagation) e.stopPropagation();
+	    const mode = this.state.voiceMode || 'uk';
+	    this.speakText(this.vocabBank[this.state.vSet].words[this.state.vIndex].w, mode === 'presenter' ? 0.74 : 0.78, mode);
+	  };
+	  stepCard = (dir) => { const len = this.vocabBank[this.state.vSet].words.length; this.setState(s => ({ vIndex: (s.vIndex + dir + len) % len, vFlipped: false })); };
+	  vocabUsage(deckName, word) {
+	    const scene = {
+	      Environment:'用于 Writing Task 2 环境保护、能源、污染题；口语 Part 3 讨论个人与政府责任时也很自然。',
+	      Education:'用于教育类作文、学校课程、大学学费、学习方式；口语里谈 study / school / learning habits 时可替换简单词。',
+	      Technology:'用于科技利弊、线上学习、自动化、设备影响；适合写作中说明 modern life 的变化。',
+	      Society:'用于社会变化、城市化、人口结构、公平问题；适合 Part 3 抽象讨论。',
+	      Health:'用于健康生活方式、公共医疗、压力和睡眠话题；口语中谈 habits / wellbeing 很实用。',
+	      Work:'用于工作效率、远程办公、职业发展、团队合作；适合 Writing Task 2 work-life balance 题。',
+	      Travel:'用于旅游、通勤、城市体验、一次难忘旅行；口语 Part 2 讲 journey / place 时很好用。',
+	      Media:'用于媒体、广告、社交平台、信息可信度；适合 technology + society 的综合题。',
+	      Speaking:'用于口语 Part 1/2 让描述更具体，比只说 good / nice / interesting 更有分数感。',
+	      Writing:'用于 Task 2 论证结构，表达观点、证据、利弊和结论时提高学术感。',
+	      Government:'用于政府责任、公共政策、税收、基础设施；写作中支持 solution / responsibility 段落。',
+	      Culture:'用于传统、身份、文化保护、旅游影响；适合 culture / globalization 话题。'
+	    };
+	    return scene[deckName] || '适合放进雅思写作和口语答案中，尤其是需要更准确表达观点或举例的时候。';
+	  }
+		  markWord = (known) => {
+		    const { vSet, vIndex } = this.state;
+		    const key = vSet + ':' + vIndex;
+    this.setState(s => {
+      const vm = { ...s.vMastered };
+      if (known) vm[key] = true; else delete vm[key];
+      return { vMastered: vm };
+    });
+	    this.stepCard(1);
+	  };
+		  reviewDeck = () => {
+		    const { vSet, vIndex, vMastered } = this.state;
+		    const deck = this.vocabBank[vSet];
+		    for (let offset = 0; offset < deck.words.length; offset++) {
+		      const idx = (vIndex + offset) % deck.words.length;
+		      if (!vMastered[vSet + ':' + idx]) {
+		        this.setState({ vIndex: idx, vFlipped: false });
+		        return;
+		      }
+		    }
+		    this.setState({ vIndex: 0, vFlipped: false });
+		  };
+		  reviewAll = () => {
+		    const { vSet, vIndex, vMastered } = this.state;
+		    for (let deckOffset = 0; deckOffset < this.vocabBank.length; deckOffset++) {
+		      const deckIndex = (vSet + deckOffset) % this.vocabBank.length;
+		      const deck = this.vocabBank[deckIndex];
+		      const start = deckIndex === vSet ? vIndex : 0;
+		      for (let wordOffset = 0; wordOffset < deck.words.length; wordOffset++) {
+		        const wordIndex = (start + wordOffset) % deck.words.length;
+		        if (!vMastered[deckIndex + ':' + wordIndex]) {
+		          this.setState({ vSet: deckIndex, vIndex: wordIndex, vFlipped: false });
+		          return;
+		        }
+		      }
+		    }
+		    this.setState({ vSet: 0, vIndex: 0, vFlipped: false });
+		  };
+
+		  // ---------- shadow reading ----------
+		  stopShadowPlayback() {
+		    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+		  }
+		  shadowZh(setIndex, lineIndex) {
+		    const script = this.shadowZhBank[setIndex] || [];
+		    return script[lineIndex] || '';
+		  }
+		  setSh = (i) => { const n = this.shadowBank.length; i = ((i % n) + n) % n; this.stopShadowPlayback(); this.stopShadowRec(); this.setState({ shSet: i, shIndex: 0, shPlaying: false, shAudio: null, shMicError: '' }); };
+	  pickLine = (i) => { this.stopShadowPlayback(); this.setState({ shIndex: i, shAudio: null, shPlaying: false }); };
+	  stepLine = (dir) => { const len = this.shadowBank[this.state.shSet].lines.length; this.stopShadowPlayback(); this.setState(s => ({ shIndex: (s.shIndex + dir + len) % len, shAudio: null, shPlaying: false })); };
+	  playLine = () => {
+	    const { shSet, shIndex } = this.state;
+	    if (this.state.shPlaying) { this.stopShadowPlayback(); this.setState({ shPlaying: false }); return; }
+	    const mode = this.state.voiceMode || 'uk';
+	    if (!window.speechSynthesis) { this.setState({ shPlaying: false, shMicError: 'Audio playback is unavailable in this browser.' }); return; }
+	    this.speakWithBestVoice(this.shadowBank[shSet].lines[shIndex], mode === 'presenter' ? 0.72 : 0.76, () => this.setState({ shPlaying: false }), () => this.setState({ shPlaying: false }), mode);
+	    this.setState({ shPlaying: true });
+	  };
+  toggleShadowRec = () => { if (this.state.shRecording) this.stopShadowRec(); else this.startShadowRec(); };
+  async startShadowRec() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.shChunks = [];
+      this.shRec = new MediaRecorder(stream);
+      this.shRec.ondataavailable = (e) => { if (e.data && e.data.size) this.shChunks.push(e.data); };
+      this.shRec.onstop = () => {
+        const blob = new Blob(this.shChunks, { type: 'audio/webm' });
+        this.setState({ shAudio: URL.createObjectURL(blob), shRecording: false });
+        stream.getTracks().forEach(t => t.stop());
+      };
+      this.shRec.start();
+      this.setState({ shRecording: true, shMicError: '' });
+    } catch (err) {
+      this.setState({ shMicError: 'Microphone unavailable — read the line aloud right after it plays.' });
+    }
+  }
+  stopShadowRec() { try { if (this.shRec && this.shRec.state !== 'inactive') this.shRec.stop(); } catch (e) {} }
+
+  noiseStyle(freq, oct, opacity, blend) {
+    const svg = "data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='" + freq + "' numOctaves='" + oct + "' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+    const st = { position: 'absolute', inset: 0, backgroundImage: 'url("' + svg + '")', opacity: opacity, pointerEvents: 'none' };
+    if (blend) st.mixBlendMode = blend;
+    return st;
+  }
+
+  optStyle(selected, submitted, isCorrect, compact) {
+    const base = { display:'flex', alignItems:'center', gap:'10px', width: compact ? 'auto' : '100%', textAlign:'left', padding: compact ? '8px 16px' : '12px 16px', borderRadius: compact ? '999px' : '12px', border:'1px solid rgba(222,219,200,0.15)', background:'rgba(255,255,255,0.02)', color:'#E1E0CC', fontSize:'14px', cursor:'pointer', transition:'all .18s', fontFamily:'inherit' };
+    if (submitted) {
+      if (isCorrect) return { ...base, border:'1px solid #5fa777', background:'rgba(95,167,119,0.14)', color:'#cfe7d6' };
+      if (selected) return { ...base, border:'1px solid #c2705f', background:'rgba(194,112,95,0.14)', color:'#e8c7bf' };
+      return { ...base, opacity:0.45, cursor:'default' };
+    }
+    if (selected) return { ...base, border:'1px solid #DEDBC8', background:'rgba(222,219,200,0.12)' };
+    return base;
+  }
+
+  pillStyle(active) {
+    return { padding:'6px 14px', borderRadius:'999px', border:'1px solid '+(active ? '#DEDBC8' : 'rgba(222,219,200,0.18)'), background: active ? 'rgba(222,219,200,0.14)' : 'transparent', color: active ? '#E1E0CC' : 'rgba(222,219,200,0.6)', fontFamily:'inherit', fontSize:'13px', cursor:'pointer', fontWeight:700 };
+  }
+
+  renderVals() {
+    const S = this.state;
+    const pill = (a) => this.pillStyle(a);
+
+    // listening
+    const lData = this.listeningBank[S.lSet];
+    let lScore = 0;
+    const lQuestions = lData.questions.map((item, qi) => {
+      const sel = S.lAnswers[qi];
+      if (S.lSubmitted && sel === item.answer) lScore++;
+      return { num:'Q'+(qi+1), q:item.q, options:item.options.map((text, oi) => ({ text, style:this.optStyle(sel===oi, S.lSubmitted, item.answer===oi, false), onSelect:()=>this.selectL(qi, oi) })) };
+    });
+    const lBars = Array.from({ length: 30 }, (_, i) => ({ h:(0.25 + (Math.sin(i*1.7)*0.5+0.5)*0.75).toFixed(2), delay:(i*0.06).toFixed(2)+'s' }));
+
+    // reading
+    const rData = this.readingBank[S.rSet];
+    let rScore = 0;
+    const rOpts = ['True','False','Not Given'];
+    const rQuestions = rData.questions.map((item, qi) => {
+      const sel = S.rAnswers[qi];
+      if (S.rSubmitted && sel === item.answer) rScore++;
+      return { num:'Q'+(qi+1), q:item.q, options:rOpts.map((text)=>({ text, style:this.optStyle(sel===text, S.rSubmitted, item.answer===text, true), onSelect:()=>this.selectR(qi, text) })) };
+    });
+
+    // writing
+    const wData = this.writingBank[S.wSet];
+    const words = S.wText.trim() ? S.wText.trim().split(/\s+/).length : 0;
+    const wordColor = words >= 250 ? '#5fa777' : (words > 0 ? '#DEDBC8' : '#6b7280');
+    const timeColor = S.wLeft <= 60 && S.wStarted ? '#c2705f' : '#E1E0CC';
+
+    // speaking
+    const sData = this.speakingBank[S.sSet];
+    const phaseMap = { idle:'Ready', prep:'Preparation — make notes', speak:'Speak now', done:'Time' };
+    let primaryLabel = 'Start practice', primary = this.startSpeak, showSecondary = false, secondaryLabel = '', secondary = () => {};
+    if (S.sPhase === 'prep') { primaryLabel='Skip to speaking'; primary=this.skipToSpeak; showSecondary=true; secondaryLabel='Cancel'; secondary=this.resetSpeak; }
+    else if (S.sPhase === 'speak') { primaryLabel='Stop'; primary=this.stopSpeak; }
+    else if (S.sPhase === 'done') { primaryLabel='Try again'; primary=this.startSpeak; }
+    const sTime = S.sPhase === 'idle' ? '1:00' : (S.sPhase === 'done' ? 'Done' : this.fmt(S.sLeft));
+
+    // vocabulary
+    const vDeck = this.vocabBank[S.vSet];
+    const vWord = vDeck.words[S.vIndex];
+	    const vMasteredCount = vDeck.words.filter((_, i) => S.vMastered[S.vSet + ':' + i]).length;
+	    const vTotalWords = this.vocabBank.reduce((a, d) => a + d.words.length, 0);
+	    const vTotalMastered = Object.keys(S.vMastered).filter(k => S.vMastered[k]).length;
+	    const vMasteredPct = Math.round((vMasteredCount / vDeck.words.length) * 100);
+	    const voiceMode = S.voiceMode || 'uk';
+	    const voiceModes = [
+	      { id:'uk', label:'英音 UK' },
+	      { id:'us', label:'美音 US' },
+	      { id:'presenter', label:'Presenter' },
+	    ].map(v => ({
+	      label:v.label,
+	      onSelect:()=>this.setVoiceMode(v.id),
+	      style:{
+	        borderRadius:'999px', padding:'8px 14px', border:'1px solid '+(voiceMode===v.id ? '#DEDBC8' : 'rgba(222,219,200,0.2)'),
+	        background:voiceMode===v.id ? 'rgba(222,219,200,0.14)' : 'transparent',
+	        color:voiceMode===v.id ? '#E1E0CC' : 'rgba(222,219,200,0.64)',
+	        fontFamily:'inherit', fontSize:'13px', fontWeight:700, cursor:'pointer'
+	      }
+	    }));
+	    const voiceLabel = voiceMode === 'uk' ? 'UK' : (voiceMode === 'us' ? 'US' : 'Presenter');
+	    const voiceHint = voiceMode === 'uk' ? 'British English' : (voiceMode === 'us' ? 'American English' : 'clear keynote style');
+	    const voiceNote = voiceMode === 'presenter'
+	      ? 'Presenter uses a clear male-style system voice when available. It does not clone or imitate any real person.'
+	      : 'Uses the clearest matching system voice available on this device.';
+
+	    // shadow
+	    const shData = this.shadowBank[S.shSet];
+	    const shLines = shData.lines.map((text, i) => ({
+	      text, zh:this.shadowZh(S.shSet, i), zhColor:i===S.shIndex ? 'rgba(222,219,200,0.58)' : 'rgba(222,219,200,0.36)', onSelect:()=>this.pickLine(i),
+	      style:{ textAlign:'left', width:'100%', padding:'10px 14px', borderRadius:'10px', border:'1px solid '+(i===S.shIndex ? 'rgba(222,219,200,0.4)' : 'transparent'), background: i===S.shIndex ? 'rgba(222,219,200,0.1)' : 'transparent', color: i===S.shIndex ? '#E1E0CC' : 'rgba(222,219,200,0.55)', fontFamily:'inherit', fontSize:'14px', lineHeight:'1.45', cursor:'pointer' }
+	    }));
+
+    // ----- plan -----
+    const weeks = this.planData;
+    const total = this.totalTasks;
+    const doneCount = Object.keys(S.done).filter(k => S.done[k]).length;
+    const frac = total ? doneCount / total : 0;
+    const band = (5.5 + 1.5 * frac).toFixed(1);
+    const pctNum = Math.round(frac * 100);
+	    const today = Math.min(84, Math.max(1, Math.floor((Date.now() - S.planStart) / 86400000) + 1));
+	    const todayWeek = Math.min(11, Math.max(0, Math.floor((today - 1) / 7)));
+	    const wv = Math.min(11, Math.max(0, S.weekView || 0));
+	    const wk = weeks[wv];
+    const tagStyle = { fontSize:'11px', letterSpacing:'0.1em', textTransform:'uppercase', color:'#DEDBC8', background:'rgba(222,219,200,0.08)', padding:'3px 9px', borderRadius:'999px', fontWeight:700, whiteSpace:'nowrap' };
+    const planDays = wk.days.map(dd => {
+      const isToday = dd.dayNum === today;
+      const allDone = dd.tasks.every((t, i) => S.done[dd.dayNum + ':' + i]);
+      const cardStyle = { background:'#101010', border:'1px solid '+(allDone ? 'rgba(95,167,119,0.5)' : (isToday ? '#DEDBC8' : 'rgba(222,219,200,0.06)')), borderRadius:'18px', padding:'18px', display:'flex', flexDirection:'column', gap:'12px' };
+      const tasks = dd.tasks.map((t, i) => {
+        const key = dd.dayNum + ':' + i;
+        const checked = !!S.done[key];
+	        const hasGo = !!t.skill;
+	        const checkStyle = checked
+	          ? { flex:'none', width:'20px', height:'20px', borderRadius:'6px', border:'none', background:'#DEDBC8', color:'#000', fontSize:'12px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', padding:0, lineHeight:1, marginTop:'1px' }
+	          : { flex:'none', width:'20px', height:'20px', borderRadius:'6px', border:'1px solid rgba(222,219,200,0.3)', background:'transparent', color:'#000', fontSize:'12px', cursor:'pointer', padding:0, marginTop:'1px' };
+	        const textStyle = { flex:'1', fontSize:'13px', lineHeight:'1.4', color: checked ? 'rgba(222,219,200,0.4)' : (hasGo ? '#DEDBC8' : '#9ca3af'), textDecoration: checked ? 'line-through' : 'none' };
+	        const detailStyle = { display:'block', marginTop:'2px', fontSize:'11px', lineHeight:'1.35', color: checked ? 'rgba(222,219,200,0.28)' : 'rgba(222,219,200,0.46)', textDecoration:'none' };
+	        const textButtonStyle = { flex:'1', minWidth:0, padding:0, margin:0, background:'none', border:'none', textAlign:'left', fontFamily:'inherit', cursor:hasGo ? 'pointer' : 'default' };
+	        return { label:t.label, detail:t.detail, check: checked ? '✓' : '', checkStyle, textStyle, detailStyle, textButtonStyle, onToggle:()=>this.toggleTask(key), hasGo, onGo:hasGo ? ()=>this.activateSet(t.skill, t.setIndex) : () => {} };
+	      });
+	      return { dayLabel:'Day '+dd.dayNum, theme:dd.theme, themeStyle:tagStyle, isToday, cardStyle, tasks };
+	    });
+	    const weekPills = weeks.map((x, i) => ({ label:String(i+1), onSelect:()=>this.setWeek(i), style:{ width:'34px', height:'34px', borderRadius:'10px', border:'1px solid '+(i===wv ? '#DEDBC8' : (i===todayWeek ? 'rgba(222,219,200,0.42)' : 'rgba(222,219,200,0.16)')), background: i===wv ? 'rgba(222,219,200,0.14)' : (i===todayWeek ? 'rgba(222,219,200,0.06)' : 'transparent'), color: i===wv ? '#E1E0CC' : (i===todayWeek ? 'rgba(222,219,200,0.82)' : 'rgba(222,219,200,0.55)'), fontFamily:'inherit', fontSize:'13px', cursor:'pointer', fontWeight:700 } }));
+	    const todayButtonStyle = { borderRadius:'999px', padding:'8px 14px', border:'1px solid '+(wv===todayWeek ? 'rgba(222,219,200,0.18)' : '#DEDBC8'), background:wv===todayWeek ? 'transparent' : 'rgba(222,219,200,0.14)', color:wv===todayWeek ? 'rgba(222,219,200,0.48)' : '#E1E0CC', fontFamily:'inherit', fontSize:'12px', fontWeight:700, cursor:'pointer' };
+    const activePhase = Math.floor(wv / 4);
+    const phaseDefs = [['Foundations','5.5 → 6.0'],['Fluency','6.0 → 6.5'],['Exam mastery','6.5 → 7.0']];
+    const phases = phaseDefs.map((p, i) => ({ tag:'Phase '+(i+1), name:p[0], range:p[1], style:{ flex:'1 1 180px', background: i===activePhase ? 'rgba(222,219,200,0.1)' : '#101010', border:'1px solid '+(i===activePhase ? '#DEDBC8' : 'rgba(222,219,200,0.07)'), borderRadius:'16px', padding:'16px 18px' } }));
+
+    return {
+      goTop:()=>this.scrollTo('top'),
+      goPlan:()=>this.scrollTo('plan'),
+      goListening:()=>this.scrollTo('listening'),
+      goReading:()=>this.scrollTo('reading'),
+      goWriting:()=>this.scrollTo('writing'),
+      goSpeaking:()=>this.scrollTo('speaking'),
+      goVocab:()=>this.scrollTo('vocab'),
+      goShadow:()=>this.scrollTo('shadow'),
+      noiseOverlayStyle:this.noiseStyle('0.85','3',0.7,'overlay'),
+
+	      plan: {
+	        dayText:'Day '+today, dayTotal:'/ 84', startDateText:'Start date · '+this.planDateLabel(S.planStart),
+        pct:pctNum+'%', pctWidth:pctNum+'%', band,
+        onReset:this.resetPlan,
+	        phases, weekPills, goTodayWeek:this.goTodayWeek, todayButtonStyle,
+        weekTitle:'Week '+(wv+1)+' · '+wk.phaseName,
+        weekRange:'Target band '+wk.phaseFrom+' → '+wk.phaseTo,
+        blurb:wk.blurb, days:planDays,
+      },
+
+      listening: {
+        setLabel:'Set '+(S.lSet+1)+' / '+this.listeningBank.length+' · Talk',
+        title:lData.title,
+        sets:this.listeningBank.map((b, i) => ({ label:'Set '+(i+1), style:pill(i===S.lSet), onSelect:()=>this.setL(i) })),
+        onPlay:this.playMonologue,
+        playGlyph:S.lPlaying ? '❚❚' : '▶',
+        statusText:S.lPlaying ? 'Playing' : 'Tap play',
+        barAnim:S.lPlaying ? 'barPulse .9s ease-in-out infinite' : 'none',
+        bars:lBars,
+        toggleTranscript:()=>this.setState(s=>({ lTranscript: !s.lTranscript })),
+        transcriptLabel:S.lTranscript ? 'Hide transcript' : 'Show transcript',
+        showTranscript:S.lTranscript, transcript:lData.transcript,
+        questions:lQuestions,
+        submit:this.submitL, reset:this.resetL, submitted:S.lSubmitted,
+        scoreText:'Score '+lScore+' / '+lData.questions.length,
+      },
+
+      reading: {
+        setLabel:'Passage '+(S.rSet+1)+' / '+this.readingBank.length,
+        title:rData.title, passage:rData.passage,
+        sets:this.readingBank.map((b, i) => ({ label:'Passage '+(i+1), style:pill(i===S.rSet), onSelect:()=>this.setR(i) })),
+        questions:rQuestions,
+        submit:this.submitR, reset:this.resetR, submitted:S.rSubmitted,
+        scoreText:'Score '+rScore+' / '+rData.questions.length,
+      },
+
+      writing: {
+        setLabel:'Task 2 · Prompt '+(S.wSet+1)+' / '+this.writingBank.length,
+        prompt:wData.prompt,
+        sets:this.writingBank.map((b, i) => ({ label:'Prompt '+(i+1), style:pill(i===S.wSet), onSelect:()=>this.setW(i) })),
+        value:S.wText, onChange:this.changeW,
+        start:this.startW, startLabel:S.wStarted ? 'Running' : 'Start timer',
+        timeText:this.fmt(S.wLeft), timeColor,
+        wordText:words+' / 250 words', wordColor,
+        toggleModel:this.toggleModel, modelLabel:S.wModel ? 'Hide model answer' : 'Reveal model answer',
+        showModel:S.wModel, model:wData.model, tips:this.writingTips,
+      },
+
+      speaking: {
+        setLabel:'Part 2 · Card '+(S.sSet+1)+' / '+this.speakingBank.length,
+        title:sData.title, bullets:sData.bullets,
+        sets:this.speakingBank.map((b, i) => ({ label:'Card '+(i+1), style:pill(i===S.sSet), onSelect:()=>this.setS(i) })),
+        phaseLabel:phaseMap[S.sPhase], timeText:sTime,
+        primary, primaryLabel, showSecondary, secondary, secondaryLabel,
+        recording:S.sRecording, micError:!!S.sMicError, micErrorText:S.sMicError,
+        audioUrl:S.sAudio,
+      },
+
+	      vocab: {
+	        sets:this.vocabBank.map((d, i) => ({ label:d.name, style:pill(i===S.vSet), onSelect:()=>this.setV(i) })),
+	        deckName:vDeck.name, counter:(S.vIndex+1)+' / '+vDeck.words.length,
+	        flip:this.flipCard, speak:this.speakWord,
+	        front:!S.vFlipped, back:S.vFlipped,
+		        word:vWord.w, ipa:vWord.ipa, cn:vWord.cn, en:vWord.en, ex:vWord.ex, usage:vWord.usage || this.vocabUsage(vDeck.name, vWord.w),
+	        voiceModes, voiceHint, voiceNote,
+	        voiceButton:'🔊 '+voiceLabel+' voice',
+	        again:()=>this.markWord(false), got:()=>this.markWord(true),
+        prev:()=>this.stepCard(-1), next:()=>this.stepCard(1),
+	        masteredText:vMasteredCount+' / '+vDeck.words.length, masteredWidth:vMasteredPct+'%',
+	        totalText:vTotalMastered+' / '+vTotalWords,
+	        reviewDeck:this.reviewDeck, reviewAll:this.reviewAll,
+	      },
+
+	      shadow: {
+	        sets:this.shadowBank.map((d, i) => ({ label:'Script '+(i+1), style:pill(i===S.shSet), onSelect:()=>this.setSh(i) })),
+	        setLabel:shData.title, title:shData.title, counter:(S.shIndex+1)+' / '+shData.lines.length,
+		        sentence:shData.lines[S.shIndex], translation:this.shadowZh(S.shSet, S.shIndex), lines:shLines,
+	        voiceModes, voiceHint, voiceNote,
+	        play:this.playLine, playLabel:S.shPlaying ? '❚❚ Stop audio' : '▶ Play line',
+        record:this.toggleShadowRec,
+        recLabel:S.shRecording ? '● Stop' : '● Record echo',
+        recBg:S.shRecording ? 'rgba(194,112,95,0.18)' : 'rgba(222,219,200,0.06)',
+        recBorder:S.shRecording ? '#c2705f' : 'rgba(222,219,200,0.25)',
+        recColor:S.shRecording ? '#e8c7bf' : '#E1E0CC',
+        prev:()=>this.stepLine(-1), next:()=>this.stepLine(1),
+        audioUrl:S.shAudio, micError:!!S.shMicError, micErrorText:S.shMicError,
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
