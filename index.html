@@ -144,6 +144,123 @@
   @media (min-width: 768px) {
     .velorah-nav-links { display: flex; }
   }
+  .mobile-study-dock { display:none; }
+  @media (max-width: 760px) {
+    html { scroll-behavior:smooth; }
+    body { overscroll-behavior-y:contain; }
+    button, a, textarea, input { -webkit-tap-highlight-color:rgba(222,219,200,0.16); }
+    #top { height:72vh !important; padding:10px !important; }
+    #top nav { display:none !important; }
+    #top h1 { font-size:clamp(76px,31vw,160px) !important; white-space:normal !important; line-height:.88 !important; }
+    #top [style*="justify-content:flex-end"] { justify-content:flex-start !important; }
+    section[id] { scroll-margin-top:14px !important; padding-left:16px !important; padding-right:16px !important; }
+    #plan, #listening, #reading, #writing, #speaking, #vocab, #shadow { padding-bottom:calc(96px + env(safe-area-inset-bottom)) !important; }
+    .mobile-scroll-strip {
+      flex-wrap:nowrap !important;
+      overflow-x:auto !important;
+      -webkit-overflow-scrolling:touch;
+      scroll-snap-type:x proximity;
+      padding:2px 2px 10px;
+      margin-left:-2px;
+      scrollbar-width:none;
+    }
+    .mobile-scroll-strip::-webkit-scrollbar,
+    .plan-day-grid::-webkit-scrollbar,
+    .study-pill-strip::-webkit-scrollbar { display:none; }
+    .mobile-scroll-strip > * { flex:0 0 auto; scroll-snap-align:start; }
+    .plan-day-grid {
+      display:flex !important;
+      grid-template-columns:none !important;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scroll-snap-type:x mandatory;
+      gap:14px !important;
+      margin-left:-16px;
+      margin-right:-16px;
+      padding:0 16px 12px;
+      scrollbar-width:none;
+    }
+    .plan-day-card {
+      min-width:min(82vw, 360px);
+      scroll-snap-align:center;
+      padding:20px !important;
+      border-radius:22px !important;
+    }
+    .study-task-row {
+      align-items:stretch !important;
+      gap:10px !important;
+      min-height:48px;
+    }
+    .study-task-check {
+      width:34px !important;
+      height:34px !important;
+      border-radius:10px !important;
+      margin-top:4px !important;
+    }
+    .study-task-open {
+      min-width:36px;
+      min-height:42px;
+      border-radius:12px !important;
+      background:rgba(222,219,200,0.05) !important;
+    }
+    .study-pill-strip {
+      flex-wrap:nowrap !important;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scroll-snap-type:x proximity;
+      padding-bottom:10px;
+      scrollbar-width:none;
+    }
+    .study-pill-strip > * { flex:0 0 auto; scroll-snap-align:start; }
+    .mobile-study-dock {
+      position:fixed;
+      left:12px;
+      right:12px;
+      bottom:calc(12px + env(safe-area-inset-bottom));
+      z-index:120;
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      gap:6px;
+      padding:8px;
+      border:1px solid rgba(222,219,200,0.16);
+      border-radius:22px;
+      background:rgba(8,8,8,0.78);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      box-shadow:0 18px 60px rgba(0,0,0,0.55), inset 0 1px 1px rgba(255,255,255,0.06);
+    }
+    .mobile-study-dock button {
+      min-height:48px;
+      border:0;
+      border-radius:16px;
+      background:rgba(222,219,200,0.07);
+      color:rgba(225,224,204,0.82);
+      font-family:inherit;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.02em;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:3px;
+    }
+    .mobile-study-dock button span:first-child { font-size:16px; line-height:1; }
+    .mobile-study-dock button.is-active { background:#DEDBC8; color:#000; }
+    body.study-focus-mode [data-screen-label="About"],
+    body.study-focus-mode [data-screen-label="Closing Blessing"],
+    body.study-focus-mode footer { display:none !important; }
+    body.study-focus-mode #top { height:32vh !important; min-height:0 !important; }
+    body.study-focus-mode #top [style*="A cinematic prep studio"] { display:none !important; }
+    body.study-focus-mode section[id]:not(#top) {
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+    }
+    body.study-focus-mode section[id]:not(#top) > div { width:100%; }
+    body.study-focus-mode #plan { align-items:flex-start; }
+  }
 </style>
 </helmet>
 
@@ -242,7 +359,7 @@
       </div>
 
 	      <!-- week selector -->
-	      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:18px;">
+	      <div class="mobile-scroll-strip" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:18px;">
 	        <span style="color:#9ca3af; font-size:13px; margin-right:4px;">Week</span>
 	        <sc-for list="{{ plan.weekPills }}" as="w" hint-placeholder-count="12">
 	          <button onClick="{{ w.onSelect }}" style="{{ w.style }}">{{ w.label }}</button>
@@ -256,9 +373,9 @@
       </div>
 
       <!-- day cards -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:clamp(10px,1.2vw,16px);">
+      <div class="plan-day-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:clamp(10px,1.2vw,16px);">
         <sc-for list="{{ plan.days }}" as="d" hint-placeholder-count="7">
-          <div style="{{ d.cardStyle }}">
+          <div class="plan-day-card" style="{{ d.cardStyle }}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <span style="{{ d.themeStyle }}">{{ d.theme }}</span>
               <sc-if value="{{ d.isToday }}" hint-placeholder-val="{{ false }}">
@@ -268,14 +385,14 @@
             <p style="margin:0; font-family:'Instrument Serif',serif; font-style:italic; font-size:clamp(20px,1.8vw,26px); color:rgba(222,219,200,0.55);">{{ d.dayLabel }}</p>
             <div style="display:flex; flex-direction:column; gap:9px;">
               <sc-for list="{{ d.tasks }}" as="t" hint-placeholder-count="3">
-	                <div style="display:flex; align-items:flex-start; gap:9px;">
-	                  <button onClick="{{ t.onToggle }}" style="{{ t.checkStyle }}">{{ t.check }}</button>
+	                <div class="study-task-row" style="display:flex; align-items:flex-start; gap:9px;">
+	                  <button class="study-task-check" onClick="{{ t.onToggle }}" style="{{ t.checkStyle }}">{{ t.check }}</button>
 	                  <button onClick="{{ t.onGo }}" style="{{ t.textButtonStyle }}">
 	                    <span style="{{ t.textStyle }}">{{ t.label }}</span>
 	                    <span style="{{ t.detailStyle }}">{{ t.detail }}</span>
 	                  </button>
 	                  <sc-if value="{{ t.hasGo }}" hint-placeholder-val="{{ false }}">
-	                    <button onClick="{{ t.onGo }}" style="flex:none; margin-left:auto; background:none; border:none; color:rgba(222,219,200,0.55); font-size:14px; cursor:pointer; padding:0;" style-hover="color:#E1E0CC;">↗</button>
+	                    <button class="study-task-open" onClick="{{ t.onGo }}" style="flex:none; margin-left:auto; background:none; border:none; color:rgba(222,219,200,0.55); font-size:14px; cursor:pointer; padding:0;" style-hover="color:#E1E0CC;">↗</button>
 	                  </sc-if>
                 </div>
               </sc-for>
@@ -297,7 +414,7 @@
       <div style="background:#101010; border-radius:clamp(16px,1.8vw,24px); padding:clamp(24px,3vw,44px); border:1px solid rgba(222,219,200,0.06);">
         <p style="margin:0 0 6px; color:#9ca3af; font-size:13px;">{{ listening.setLabel }}</p>
         <p style="margin:0 0 16px; color:#DEDBC8; font-size:clamp(16px,1.4vw,22px); font-weight:700;">{{ listening.title }}</p>
-        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <div class="study-pill-strip" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
           <sc-for list="{{ listening.sets }}" as="p" hint-placeholder-count="6">
             <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
           </sc-for>
@@ -349,7 +466,7 @@
         <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Reading</h2>
       </div>
 
-      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <div class="study-pill-strip" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
         <sc-for list="{{ reading.sets }}" as="p" hint-placeholder-count="6">
           <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
         </sc-for>
@@ -397,7 +514,7 @@
         <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Writing</h2>
       </div>
 
-      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <div class="study-pill-strip" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
         <sc-for list="{{ writing.sets }}" as="p" hint-placeholder-count="6">
           <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
         </sc-for>
@@ -452,7 +569,7 @@
         <h2 style="margin:0; font-weight:700; font-size:clamp(28px,3.4vw,52px); letter-spacing:-0.03em; color:#E1E0CC;">Speaking</h2>
       </div>
 
-      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <div class="study-pill-strip" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
         <sc-for list="{{ speaking.sets }}" as="p" hint-placeholder-count="8">
           <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
         </sc-for>
@@ -512,7 +629,7 @@
       </div>
       <p style="margin:0 0 clamp(20px,2.4vw,30px); color:#9ca3af; font-size:clamp(13px,1vw,15px);">单词背诵 · flip the card, hear the word, mark what you know.</p>
 
-      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <div class="study-pill-strip" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
         <sc-for list="{{ vocab.sets }}" as="p" hint-placeholder-count="6">
           <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
         </sc-for>
@@ -601,7 +718,7 @@
       </div>
       <p style="margin:0 0 clamp(20px,2.4vw,30px); color:#9ca3af; font-size:clamp(13px,1vw,15px);">影子跟读 · play a line, then record yourself echoing it a beat behind.</p>
 
-      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+      <div class="study-pill-strip" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
         <sc-for list="{{ shadow.sets }}" as="p" hint-placeholder-count="4">
           <button onClick="{{ p.onSelect }}" style="{{ p.style }}">{{ p.label }}</button>
         </sc-for>
@@ -692,6 +809,14 @@
     <p style="margin:0; color:#6b7280; font-size:13px;">A studio for the four IELTS skills · listening · reading · writing · speaking</p>
     <button onClick="{{ goTop }}" style="background:none; border:1px solid rgba(222,219,200,0.2); color:#DEDBC8; border-radius:999px; padding:9px 22px; font-family:inherit; font-size:13px; cursor:pointer;" style-hover="border-color:#DEDBC8;">Back to top ↑</button>
   </footer>
+
+  <div class="mobile-study-dock" aria-label="Study shortcuts">
+    <button onClick="{{ goPlan }}" type="button"><span>✓</span><span>Plan</span></button>
+    <button onClick="{{ goListening }}" type="button"><span>▶</span><span>Listen</span></button>
+    <button onClick="{{ goVocab }}" type="button"><span>Aa</span><span>Words</span></button>
+    <button onClick="{{ goShadow }}" type="button"><span>↻</span><span>Shadow</span></button>
+    <button onClick="{{ toggleFocusMode }}" style="{{ focusButtonStyle }}" type="button"><span>◎</span><span>{{ focusButtonLabel }}</span></button>
+  </div>
 
 </div>
 </x-dc>
@@ -1463,7 +1588,7 @@ class Component extends DCLogic {
 	      sSet:0, sPhase:'idle', sLeft:0, sRecording:false, sAudio:null, sMicError:'',
 	      vSet:0, vIndex:0, vFlipped:false, vMastered:{}, voiceMode:'uk',
 	      shSet:0, shIndex:0, shPlaying:false, shRecording:false, shAudio:null, shMicError:'',
-      planStart:null, done:{}, weekView:null,
+      planStart:null, done:{}, weekView:null, focusMode:false,
     };
 	    try {
 	      const raw = localStorage.getItem('prismIelts.v1');
@@ -1532,6 +1657,7 @@ class Component extends DCLogic {
 	    clearInterval(this.wTimer);
 	    clearInterval(this.sTimer);
 	    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+	    try { document.body.classList.remove('study-focus-mode'); } catch (e) {}
 	    this.stopShadowPlayback();
 	    this.stopRecording();
 	    this.stopShadowRec();
@@ -1554,6 +1680,7 @@ class Component extends DCLogic {
 	  toggleTask = (key) => this.setState(s => ({ done: { ...s.done, [key]: !s.done[key] } }));
 	  resetPlan = () => { const d = new Date(); d.setHours(0,0,0,0); this.setState({ planVersion:'tingzhang-plan-v3', planStart: d.getTime(), done: {}, weekView: 0 }); };
 	  setWeek = (i) => this.setState({ weekView: i });
+	  toggleFocusMode = () => this.setState(s => ({ focusMode: !s.focusMode }));
 	  goTodayWeek = () => {
 	    const today = Math.min(84, Math.max(1, Math.floor((Date.now() - this.state.planStart) / 86400000) + 1));
 	    this.setState({ weekView: Math.min(11, Math.max(0, Math.floor((today - 1) / 7))) });
@@ -1867,6 +1994,7 @@ class Component extends DCLogic {
 
   renderVals() {
     const S = this.state;
+    try { document.body.classList.toggle('study-focus-mode', !!S.focusMode); } catch (e) {}
     const pill = (a) => this.pillStyle(a);
 
     // listening
@@ -1984,6 +2112,9 @@ class Component extends DCLogic {
       goSpeaking:()=>this.scrollTo('speaking'),
       goVocab:()=>this.scrollTo('vocab'),
       goShadow:()=>this.scrollTo('shadow'),
+      toggleFocusMode:this.toggleFocusMode,
+      focusButtonStyle:S.focusMode ? { background:'#DEDBC8', color:'#000' } : {},
+      focusButtonLabel:S.focusMode ? 'Focus' : 'Focus',
       noiseOverlayStyle:this.noiseStyle('0.85','3',0.7,'overlay'),
 
 	      plan: {
